@@ -1,0 +1,28 @@
+{
+  "slides": [
+    {
+      "id": 1,
+      "title": "Ford Ranger Raptor",
+      "subtitle": "สุดยอดกระบะออฟโรด",
+      "description": "ความแกร่งที่ไม่มีใครเทียบ พร้อมเทคโนโลยีล้ำสมัย",
+      "image": "/image_test/logo.png",
+      "buttonText": "ดูรายละเอียด"
+    },
+    {
+      "id": 2,
+      "title": "Ford Everest",
+      "subtitle": "SUV ขนาดใหญ่ที่ทรงพลัง",
+      "description": "ผจญภัยไปกับครอบครัว ด้วยความปลอดภัยระดับโลก",
+      "image": "/image_test/logo.png",
+      "buttonText": "เรียนรู้เพิ่มเติม"
+    },
+    {
+      "id": 3,
+      "title": "Ford Ranger",
+      "subtitle": "กระบะที่ตอบโจทย์ทุกการใช้งาน",
+      "description": "ประสิทธิภาพการทำงานและความสะดวกสบาย",
+      "image": "/image_test/logo.png",
+      "buttonText": "สำรวจรุ่น"
+    }
+  ]
+}
