@@ -48,7 +48,6 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-600 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">
-          <img src="/logo/logo.jpg" alt="Ford Logo" className="mx-auto h-16 w-auto mb-4" />
           <h2 className="text-3xl font-bold text-gray-900">Ford Admin</h2>
           <p className="text-gray-600 mt-2">เข้าสู่ระบบจัดการเนื้อหา</p>
         </div>

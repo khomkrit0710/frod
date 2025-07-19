@@ -57,7 +57,7 @@ export default function PasswordManagement() {
         body: JSON.stringify({
           currentPassword,
           newPassword,
-          username: localStorage.getItem('fordAdminUser')
+          username: 'admin'  // ใช้ key ที่ตรงกับไฟล์ admin.json
         }),
       })
 
