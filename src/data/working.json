@@ -2,38 +2,23 @@
   "videos": [
     {
       "id": 1,
-      "title": "Ford Ranger Raptor - ทดสอบความแกร่ง",
-      "description": "การทดสอบประสิทธิภาพออฟโรดที่สุดขีด",
-      "youtubeId": "dQw4w9WgXcQ",
-      "thumbnail": "/image_test/logo.png"
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
     },
     {
       "id": 2,
-      "title": "Ford Everest - ครอบครัวสุขสันต์",
-      "description": "เดินทางไกลด้วยความปลอดภัยและสะดวกสบาย",
-      "youtubeId": "dQw4w9WgXcQ",
-      "thumbnail": "/image_test/logo.png"
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
     },
     {
       "id": 3,
-      "title": "Ford Ranger - ทำงานหนักได้",
-      "description": "ประสิทธิภาพการทำงานที่เหนือกว่า",
-      "youtubeId": "dQw4w9WgXcQ",
-      "thumbnail": "/image_test/logo.png"
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
     },
     {
       "id": 4,
-      "title": "Ford Performance - ความเร็วสูงสุด",
-      "description": "สมรรถนะที่ทำให้หัวใจเต้นแรง",
-      "youtubeId": "dQw4w9WgXcQ",
-      "thumbnail": "/image_test/logo.png"
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
     },
     {
       "id": 5,
-      "title": "Ford Technology - นวัตกรรมล้ำสมัย",
-      "description": "เทคโนโลยีที่ทำให้การขับขี่ง่ายขึ้น",
-      "youtubeId": "dQw4w9WgXcQ",
-      "thumbnail": "/image_test/logo.png"
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
     }
   ]
 }

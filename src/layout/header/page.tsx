@@ -1,10 +1,35 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+interface ImageData {
+  logo: string
+  footerLogo: string
+  banner: string
+}
 
 export default function page() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [imageData, setImageData] = useState<ImageData>({
+    logo: '/logo/logo2.png', // default fallback
+    footerLogo: '/image_test/logo.png',
+    banner: '/logo/banner.jpg'
+  })
+
+  useEffect(() => {
+    loadImageData()
+  }, [])
+
+  const loadImageData = async () => {
+    try {
+      const response = await fetch('/api/data/images')
+      const data = await response.json()
+      setImageData(data)
+    } catch (error) {
+      console.error('Error loading image data:', error)
+    }
+  }
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId)
@@ -17,7 +42,7 @@ export default function page() {
     <div className="flex items-center justify-between px-4 py-2 bg-[#1e3b6d] shadow-sm border-b border-blue-100 sticky top-0 z-50">
       <div>
         <img 
-          src="/logo/logo2.png" 
+          src={imageData.logo} 
           alt="Ford Logo"
           width={70}
           height={35}

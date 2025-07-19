@@ -1,11 +1,56 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import workingData from '../../data/working.json'
+import { useState, useEffect } from 'react'
 import ScrollContainer from '../../layout/scroll/page'
 
+interface VideoItem {
+  id: number
+  url: string
+}
+
+interface VideoData {
+  videos: VideoItem[]
+}
+
 export default function WorkingPage() {
-  const { videos } = workingData
+  const [videoData, setVideoData] = useState<VideoData>({ videos: [] })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadVideoData()
+  }, [])
+
+  const loadVideoData = async () => {
+    try {
+      const response = await fetch('/api/data/working')
+      const data = await response.json()
+      setVideoData(data)
+    } catch (error) {
+      console.error('Error loading video data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const extractYouTubeId = (url: string): string => {
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+    const match = url.match(regex)
+    return match ? match[1] : url
+  }
+
+  const openVideo = (url: string) => {
+    window.open(url, '_blank')
+  }
+
+  if (loading) {
+    return (
+      <section id="working" className="minimal-section bg-blue-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-8">กำลังโหลดวิดีโอ...</div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="working" className="minimal-section bg-blue-50">
@@ -16,7 +61,7 @@ export default function WorkingPage() {
         </div>
 
         <ScrollContainer>
-          {videos.map((video) => (
+          {videoData.videos.map((video) => (
             <div
               key={video.id}
               className="flex-shrink-0 w-64 minimal-card-xs"
@@ -24,8 +69,8 @@ export default function WorkingPage() {
               <div className="relative">
                 <div className="aspect-w-16 aspect-h-9 bg-blue-50 rounded-md overflow-hidden">
                   <iframe
-                    src={`https://www.youtube.com/embed/${video.youtubeId}`}
-                    title={video.title}
+                    src={`https://www.youtube.com/embed/${extractYouTubeId(video.url)}`}
+                    title={`Video ${video.id}`}
                     frameBorder="0"
                     allowFullScreen
                     className="w-full h-32 object-cover"
@@ -37,13 +82,16 @@ export default function WorkingPage() {
               </div>
               <div className="p-2 mt-2">
                 <h3 className="text-sm font-light text-blue-600 mb-1 line-clamp-2">
-                  {video.title}
+                  Ford Video #{video.id}
                 </h3>
-                <p className="text-gray-600 text-xs line-clamp-2">
-                  {video.description}
+                <p className="text-gray-600 text-xs line-clamp-2 mb-2">
+                  วิดีโอจาก Ford Thailand
                 </p>
                 <div className="mt-2 flex items-center justify-between">
-                  <button className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors duration-200">
+                  <button 
+                    onClick={() => openVideo(video.url)}
+                    className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors duration-200"
+                  >
                     ดูวิดีโอ
                   </button>
                   <span className="text-xs text-gray-500">Ford Thailand</span>

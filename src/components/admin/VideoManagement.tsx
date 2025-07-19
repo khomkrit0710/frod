@@ -4,10 +4,7 @@ import { useState, useEffect } from 'react'
 
 interface VideoItem {
   id: number
-  title: string
-  description: string
-  youtubeId: string
-  thumbnail: string
+  url: string
 }
 
 interface VideoData {
@@ -19,12 +16,8 @@ export default function VideoManagement() {
   const [loading, setLoading] = useState(true)
   const [editingVideo, setEditingVideo] = useState<VideoItem | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
-  const [thumbnailPreview, setThumbnailPreview] = useState<string>('')
   const [formData, setFormData] = useState<Partial<VideoItem>>({
-    title: '',
-    description: '',
-    youtubeId: '',
-    thumbnail: ''
+    url: ''
   })
 
   useEffect(() => {
@@ -62,19 +55,6 @@ export default function VideoManagement() {
     }
   }
 
-  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const result = e.target?.result as string
-        setThumbnailPreview(result)
-        setFormData(prev => ({ ...prev, thumbnail: result }))
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
   const handleInputChange = (field: keyof VideoItem, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
@@ -86,17 +66,14 @@ export default function VideoManagement() {
   }
 
   const addVideo = () => {
-    if (!formData.title || !formData.youtubeId) {
-      alert('กรุณากรอกข้อมูลที่จำเป็น')
+    if (!formData.url) {
+      alert('กรุณากรอก URL ของ YouTube')
       return
     }
 
     const newVideo: VideoItem = {
       id: Date.now(),
-      title: formData.title || '',
-      description: formData.description || '',
-      youtubeId: extractYouTubeId(formData.youtubeId || ''),
-      thumbnail: formData.thumbnail || '/image_test/logo.png'
+      url: formData.url || ''
     }
 
     const updatedData = {
@@ -111,14 +88,11 @@ export default function VideoManagement() {
   }
 
   const updateVideo = () => {
-    if (!editingVideo || !formData.title || !formData.youtubeId) return
+    if (!editingVideo || !formData.url) return
 
     const updatedVideo: VideoItem = {
       ...editingVideo,
-      title: formData.title || '',
-      description: formData.description || '',
-      youtubeId: extractYouTubeId(formData.youtubeId || ''),
-      thumbnail: formData.thumbnail || editingVideo.thumbnail
+      url: formData.url || ''
     }
 
     const updatedData = {
@@ -148,18 +122,13 @@ export default function VideoManagement() {
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      description: '',
-      youtubeId: '',
-      thumbnail: ''
+      url: ''
     })
-    setThumbnailPreview('')
   }
 
   const startEdit = (video: VideoItem) => {
     setEditingVideo(video)
     setFormData(video)
-    setThumbnailPreview(video.thumbnail)
   }
 
   if (loading) {
@@ -169,7 +138,7 @@ export default function VideoManagement() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">จัดการวิดีโอ</h2>
+        <h2 className="text-2xl font-bold text-gray-900">จัดการวิดีโอ YouTube</h2>
         <button
           onClick={() => setShowAddForm(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
@@ -183,16 +152,17 @@ export default function VideoManagement() {
         {videoData.videos.map((video) => (
           <div key={video.id} className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="aspect-video bg-gray-200">
-              <img
-                src={video.thumbnail}
-                alt={video.title}
-                className="w-full h-full object-cover"
+              <iframe
+                src={`https://www.youtube.com/embed/${extractYouTubeId(video.url)}`}
+                title={`Video ${video.id}`}
+                frameBorder="0"
+                allowFullScreen
+                className="w-full h-full"
               />
             </div>
             <div className="p-4">
-              <h4 className="font-bold text-lg mb-2">{video.title}</h4>
-              <p className="text-gray-600 text-sm mb-3">{video.description}</p>
-              <p className="text-blue-600 text-sm mb-3">YouTube ID: {video.youtubeId}</p>
+              <h4 className="font-bold text-lg mb-2">Video ID: {video.id}</h4>
+              <p className="text-blue-600 text-sm mb-3 break-all">{video.url}</p>
               <div className="flex justify-between">
                 <button
                   onClick={() => startEdit(video)}
@@ -220,72 +190,40 @@ export default function VideoManagement() {
               {editingVideo ? 'แก้ไขวิดีโอ' : 'เพิ่มวิดีโอใหม่'}
             </h3>
             <div className="space-y-4">
-              {/* ชื่อวิดีโอ */}
+              {/* YouTube URL */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ชื่อวิดีโอ *
+                  YouTube URL *
                 </label>
                 <input
                   type="text"
-                  value={formData.title || ''}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  value={formData.url || ''}
+                  onChange={(e) => handleInputChange('url', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  placeholder="เช่น Ford Ranger Raptor - ทดสอบความแกร่ง"
-                />
-              </div>
-
-              {/* คำอธิบาย */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  คำอธิบาย
-                </label>
-                <textarea
-                  value={formData.description || ''}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  rows={3}
-                  placeholder="คำอธิบายเกี่ยวกับวิดีโอ..."
-                />
-              </div>
-
-              {/* YouTube URL/ID */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  YouTube URL หรือ ID *
-                </label>
-                <input
-                  type="text"
-                  value={formData.youtubeId || ''}
-                  onChange={(e) => handleInputChange('youtubeId', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  placeholder="https://www.youtube.com/watch?v=... หรือแค่ ID"
+                  placeholder="https://www.youtube.com/watch?v=..."
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  สามารถใส่ URL เต็มหรือแค่ YouTube ID ได้
+                  ใส่ URL ของ YouTube ที่ต้องการแสดง
                 </p>
               </div>
 
-              {/* Thumbnail */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  รูปปก (Thumbnail)
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleThumbnailUpload}
-                  className="w-full"
-                />
-                {thumbnailPreview && (
-                  <div className="mt-2 aspect-video bg-gray-200 rounded max-w-xs">
-                    <img
-                      src={thumbnailPreview}
-                      alt="Preview"
-                      className="w-full h-full object-cover rounded"
+              {/* Preview */}
+              {formData.url && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ตัวอย่าง
+                  </label>
+                  <div className="aspect-video bg-gray-200 rounded">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${extractYouTubeId(formData.url)}`}
+                      title="Preview"
+                      frameBorder="0"
+                      allowFullScreen
+                      className="w-full h-full rounded"
                     />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end space-x-2 mt-6">

@@ -1,11 +1,40 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+
+interface ImageData {
+  logo: string
+  footerLogo: string
+  banner: string
+}
+
 export default function FooterPage() {
+  const [imageData, setImageData] = useState<ImageData>({
+    logo: '/logo/logo2.png',
+    footerLogo: '/image_test/logo.png', // default fallback
+    banner: '/logo/banner.jpg'
+  })
+
+  useEffect(() => {
+    loadImageData()
+  }, [])
+
+  const loadImageData = async () => {
+    try {
+      const response = await fetch('/api/data/images')
+      const data = await response.json()
+      setImageData(data)
+    } catch (error) {
+      console.error('Error loading image data:', error)
+    }
+  }
   return (
     <footer id="contact" className="bg-[#1e3b6d] border-t border-blue-100">
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <img 
-              src="/image_test/logo.png" 
+              src={imageData.footerLogo} 
               alt="Ford Logo"
               width={80}
               height={40}

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import IntroManagement from '../../components/admin/IntroManagement'
 import PromotionManagement from '../../components/admin/PromotionManagement'
 import VideoManagement from '../../components/admin/VideoManagement'
+import ImageManagement from '../../components/admin/ImageManagement'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('intro')
@@ -46,7 +47,8 @@ export default function AdminDashboard() {
   const tabs = [
     { id: 'intro', name: 'จัดการแบนเนอร์/สไลด์', icon: '🖼️' },
     { id: 'promotion', name: 'จัดการโปรโมชัน', icon: '🚗' },
-    { id: 'video', name: 'จัดการวิดีโอ', icon: '📹' }
+    { id: 'video', name: 'จัดการวิดีโอ', icon: '📹' },
+    { id: 'images', name: 'จัดการรูปภาพ', icon: '🖼️' }
   ]
 
   return (
@@ -101,6 +103,7 @@ export default function AdminDashboard() {
         {activeTab === 'intro' && <IntroManagement />}
         {activeTab === 'promotion' && <PromotionManagement />}
         {activeTab === 'video' && <VideoManagement />}
+        {activeTab === 'images' && <ImageManagement />}
       </div>
     </div>
   )
