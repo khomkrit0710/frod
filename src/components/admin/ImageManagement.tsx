@@ -18,6 +18,7 @@ export default function ImageManagement() {
     logo: '',
     footerLogo: ''
   })
+  const [uploadingField, setUploadingField] = useState<string>('')
 
   useEffect(() => {
     loadImageData()
@@ -58,19 +59,51 @@ export default function ImageManagement() {
     }
   }
 
-  const handleImageUpload = (imageType: keyof ImageData, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (imageType: keyof ImageData, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const result = e.target?.result as string
-        setPreviewImages(prev => ({ ...prev, [imageType]: result }))
+      setUploadingField(imageType)
+      
+      try {
+        // ลบไฟล์เก่าก่อนอัปโหลดไฟล์ใหม่
+        if (imageData[imageType] && imageData[imageType].startsWith('/logo/')) {
+          try {
+            await fetch('/api/upload/logo/delete', {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ fileUrl: imageData[imageType] }),
+            })
+          } catch (error) {
+            console.error('Error deleting old file:', error)
+          }
+        }
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await fetch('/api/upload/logo', {
+          method: 'POST',
+          body: formData,
+        })
+
+        const result = await response.json()
         
-        // อัปเดตข้อมูลรูปภาพ
-        const updatedData = { ...imageData, [imageType]: result }
-        setImageData(updatedData)
+        if (result.success) {
+          // อัปเดตข้อมูลรูปภาพ
+          const updatedData = { ...imageData, [imageType]: result.fileUrl }
+          setImageData(updatedData)
+          setPreviewImages(updatedData)
+        } else {
+          alert(result.error || 'เกิดข้อผิดพลาดในการอัปโหลด')
+        }
+      } catch (error) {
+        console.error('Upload error:', error)
+        alert('เกิดข้อผิดพลาดในการอัปโหลด')
+      } finally {
+        setUploadingField('')
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -158,8 +191,12 @@ export default function ImageManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleImageUpload(key as keyof ImageData, e)}
-                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  disabled={uploadingField === key}
+                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
                 />
+                {uploadingField === key && (
+                  <p className="text-sm text-blue-600 mt-1">กำลังอัปโหลด...</p>
+                )}
               </div>
 
             </div>
@@ -173,7 +210,7 @@ export default function ImageManagement() {
         <ul className="text-sm text-blue-800 space-y-1">
           <li>• รองรับไฟล์รูปภาพ: JPG, PNG, GIF, WebP</li>
           <li>• ขนาดที่แนะนำ: Logo (200x100px), Banner (1200x400px)</li>
-          <li>• รูปภาพจะถูกแปลงเป็น Base64 และเก็บในระบบ</li>
+          <li>• รูปภาพจะถูกเก็บในโฟลเดอร์ public/logo/</li>
           <li>• กดบันทึกทั้งหมดเพื่อนำการเปลี่ยนแปลงไปใช้ในเว็บไซต์</li>
         </ul>
       </div>

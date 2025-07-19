@@ -1,38 +1,86 @@
 {
   "Ranger": [
     {
-      "id": 1,
-      "image": "/promotions/1.jpg"
+      "id": 1752936210870,
+      "image": "/promotions/promotion_1752936210866.jpg"
     },
     {
-      "id": 2,
-      "image": "/promotions/2.jpg"
+      "id": 1752936213573,
+      "image": "/promotions/promotion_1752936213570.jpg"
     },
     {
-      "id": 3,
-      "image": "/promotions/3.jpg"
+      "id": 1752936217019,
+      "image": "/promotions/promotion_1752936216978.jpg"
     },
     {
-      "id": 4,
-      "image": "/promotions/7.jpg"
+      "id": 1752936220487,
+      "image": "/promotions/promotion_1752936220483.jpg"
     },
     {
-      "id": 5,
-      "image": "/promotions/8.jpg"
+      "id": 1752936224910,
+      "image": "/promotions/promotion_1752936224908.jpg"
     },
     {
-      "id": 6,
-      "image": "/promotions/9.jpg"
+      "id": 1752936230820,
+      "image": "/promotions/promotion_1752936230815.jpg"
+    },
+    {
+      "id": 1752936234891,
+      "image": "/promotions/promotion_1752936234885.jpg"
+    },
+    {
+      "id": 1752936238601,
+      "image": "/promotions/promotion_1752936238598.jpg"
+    }
+  ],
+  "Ranger Raptor": [
+    {
+      "id": 1752935993525,
+      "image": "/promotions/promotion_1752935993521.jpg"
+    },
+    {
+      "id": 1752935997326,
+      "image": "/promotions/promotion_1752935997323.jpg"
+    }
+  ],
+  "Ranger Sport": [
+    {
+      "id": 1752936171244,
+      "image": "/promotions/promotion_1752936171228.jpg"
+    },
+    {
+      "id": 1752936174205,
+      "image": "/promotions/promotion_1752936174160.jpg"
     }
   ],
   "Everest": [
     {
-      "id": 7,
-      "image": "/promotions/4.jpg"
+      "id": 1752936287157,
+      "image": "/promotions/promotion_1752936287153.jpg"
     },
     {
-      "id": 8,
-      "image": "/promotions/5.jpg"
+      "id": 1752936289922,
+      "image": "/promotions/promotion_1752936289919.jpg"
+    },
+    {
+      "id": 1752936293453,
+      "image": "/promotions/promotion_1752936293444.jpg"
+    },
+    {
+      "id": 1752936296307,
+      "image": "/promotions/promotion_1752936296302.jpg"
+    },
+    {
+      "id": 1752936299451,
+      "image": "/promotions/promotion_1752936299447.jpg"
+    },
+    {
+      "id": 1752936302286,
+      "image": "/promotions/promotion_1752936302281.jpg"
+    },
+    {
+      "id": 1752936305567,
+      "image": "/promotions/promotion_1752936305563.jpg"
     }
   ]
 }

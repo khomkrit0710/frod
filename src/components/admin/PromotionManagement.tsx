@@ -20,6 +20,7 @@ export default function PromotionManagement() {
   const [currentPage, setCurrentPage] = useState<{[key: string]: number}>({})
   const [selectedImage, setSelectedImage] = useState<string>('')
   const [showImagePopup, setShowImagePopup] = useState(false)
+  const [uploading, setUploading] = useState(false)
   
   const ITEMS_PER_PAGE = 6 // จำนวนรูปต่อหน้า (1 แถว)
 
@@ -80,8 +81,26 @@ export default function PromotionManagement() {
     setNewCategoryName('')
   }
 
-  const deleteCategory = (categoryName: string) => {
+  const deleteCategory = async (categoryName: string) => {
     if (confirm(`คุณแน่ใจว่าต้องการลบหมวดหมู่ "${categoryName}" และรูปภาพทั้งหมดในหมวดหมู่นี้?`)) {
+      // ลบไฟล์รูปภาพทั้งหมดในหมวดหมู่
+      const itemsToDelete = promotionData[categoryName] || []
+      for (const item of itemsToDelete) {
+        if (item.image && item.image.startsWith('/promotions/')) {
+          try {
+            await fetch('/api/upload/promotions/delete', {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ fileUrl: item.image }),
+            })
+          } catch (error) {
+            console.error('Error deleting file:', error)
+          }
+        }
+      }
+      
       const updatedData = { ...promotionData }
       delete updatedData[categoryName]
       
@@ -112,32 +131,67 @@ export default function PromotionManagement() {
     setEditingCategory('')
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, categoryName: string) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, categoryName: string) => {
     const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const result = e.target?.result as string
+      setUploading(true)
+      
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await fetch('/api/upload/promotions', {
+          method: 'POST',
+          body: formData,
+        })
+
+        const result = await response.json()
         
-        const newItem: PromotionItem = {
-          id: Date.now(),
-          image: result
-        }
+        if (result.success) {
+          const newItem: PromotionItem = {
+            id: Date.now(),
+            image: result.fileUrl
+          }
 
-        const updatedData = {
-          ...promotionData,
-          [categoryName]: [...(promotionData[categoryName] || []), newItem]
-        }
+          const updatedData = {
+            ...promotionData,
+            [categoryName]: [...(promotionData[categoryName] || []), newItem]
+          }
 
-        setPromotionData(updatedData)
-        savePromotionData(updatedData)
+          setPromotionData(updatedData)
+          savePromotionData(updatedData)
+        } else {
+          alert(result.error || 'เกิดข้อผิดพลาดในการอัปโหลด')
+        }
+      } catch (error) {
+        console.error('Upload error:', error)
+        alert('เกิดข้อผิดพลาดในการอัปโหลด')
+      } finally {
+        setUploading(false)
       }
-      reader.readAsDataURL(file)
     }
   }
 
-  const deleteImage = (categoryName: string, imageId: number) => {
+  const deleteImage = async (categoryName: string, imageId: number) => {
     if (confirm('คุณแน่ใจว่าต้องการลบรูปภาพนี้?')) {
+      // หารูปภาพที่จะลบ
+      const imageToDelete = promotionData[categoryName].find(item => item.id === imageId)
+      
+      // ลบไฟล์รูปภาพถ้ามี
+      if (imageToDelete?.image && imageToDelete.image.startsWith('/promotions/')) {
+        try {
+          await fetch('/api/upload/promotions/delete', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ fileUrl: imageToDelete.image }),
+          })
+        } catch (error) {
+          console.error('Error deleting file:', error)
+        }
+      }
+      
       const updatedData = {
         ...promotionData,
         [categoryName]: promotionData[categoryName].filter(item => item.id !== imageId)
@@ -260,11 +314,12 @@ export default function PromotionManagement() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                <span>อัปโหลดรูปภาพ</span>
+                <span>{uploading ? 'กำลังอัปโหลด...' : 'อัปโหลดรูปภาพ'}</span>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleImageUpload(e, categoryName)}
+                  disabled={uploading}
                   className="hidden"
                 />
               </label>

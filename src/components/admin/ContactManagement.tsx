@@ -18,6 +18,7 @@ export default function ContactManagement() {
   const [contactData, setContactData] = useState<ContactData>({ contacts: [] })
   const [isEditing, setIsEditing] = useState(false)
   const [editingContact, setEditingContact] = useState<Contact | null>(null)
+  const [originalQrCode, setOriginalQrCode] = useState<string>('') // เก็บ QR code เดิม
   const [showForm, setShowForm] = useState(false)
   const [uploading, setUploading] = useState(false)
 
@@ -68,18 +69,38 @@ export default function ContactManagement() {
       description: ''
     }
     setEditingContact(newContact)
+    setOriginalQrCode('') // ไม่มี QR code เดิม
     setIsEditing(false)
     setShowForm(true)
   }
 
   const handleEditContact = (contact: Contact) => {
     setEditingContact({ ...contact })
+    setOriginalQrCode(contact.qrCode) // เก็บ QR code เดิม
     setIsEditing(true)
     setShowForm(true)
   }
 
-  const handleDeleteContact = (id: number) => {
+  const handleDeleteContact = async (id: number) => {
     if (confirm('คุณต้องการลบข้อมูลนี้หรือไม่?')) {
+      // หาข้อมูล contact ที่จะลบ
+      const contactToDelete = contactData.contacts.find(contact => contact.id === id)
+      
+      // ลบไฟล์รูปภาพถ้ามี
+      if (contactToDelete?.qrCode && contactToDelete.qrCode.startsWith('/contact/')) {
+        try {
+          await fetch('/api/upload/contact/delete', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ fileUrl: contactToDelete.qrCode }),
+          })
+        } catch (error) {
+          console.error('Error deleting file:', error)
+        }
+      }
+      
       const updatedContacts = contactData.contacts.filter(contact => contact.id !== id)
       setContactData({ contacts: updatedContacts })
     }
@@ -99,6 +120,8 @@ export default function ContactManagement() {
       })
     }
     saveContactData()
+    // รีเซ็ต state
+    setOriginalQrCode('')
   }
 
   const handleInputChange = (field: keyof Contact, value: string) => {
@@ -116,6 +139,21 @@ export default function ContactManagement() {
 
     setUploading(true)
     try {
+      // ลบไฟล์เก่าก่อนอัปโหลดไฟล์ใหม่
+      if (editingContact?.qrCode && editingContact.qrCode.startsWith('/contact/')) {
+        try {
+          await fetch('/api/upload/contact/delete', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ fileUrl: editingContact.qrCode }),
+          })
+        } catch (error) {
+          console.error('Error deleting old file:', error)
+        }
+      }
+
       const formData = new FormData()
       formData.append('file', file)
 
@@ -283,9 +321,39 @@ export default function ContactManagement() {
                 {uploading ? 'กำลังอัปโหลด...' : 'บันทึก'}
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
+                  // ถ้าไม่ใช่การแก้ไขและมีการอัปโหลดไฟล์ใหม่ ให้ลบไฟล์ที่อัปโหลด
+                  if (!isEditing && editingContact?.qrCode && editingContact.qrCode.startsWith('/contact/')) {
+                    try {
+                      await fetch('/api/upload/contact/delete', {
+                        method: 'DELETE',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ fileUrl: editingContact.qrCode }),
+                      })
+                    } catch (error) {
+                      console.error('Error deleting uploaded file:', error)
+                    }
+                  }
+                  // ถ้าเป็นการแก้ไขและมีการเปลี่ยน QR code ให้ลบไฟล์ใหม่และคืนค่าเดิม
+                  else if (isEditing && editingContact?.qrCode !== originalQrCode && editingContact?.qrCode.startsWith('/contact/')) {
+                    try {
+                      await fetch('/api/upload/contact/delete', {
+                        method: 'DELETE',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ fileUrl: editingContact.qrCode }),
+                      })
+                    } catch (error) {
+                      console.error('Error deleting new uploaded file:', error)
+                    }
+                  }
+                  
                   setShowForm(false)
                   setEditingContact(null)
+                  setOriginalQrCode('')
                   setIsEditing(false)
                 }}
                 disabled={uploading}

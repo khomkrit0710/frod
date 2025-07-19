@@ -19,6 +19,7 @@ export default function IntroManagement() {
   const [imagePreview, setImagePreview] = useState<string>('')
   const [selectedImage, setSelectedImage] = useState<string>('')
   const [showImagePopup, setShowImagePopup] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     loadIntroData()
@@ -55,15 +56,33 @@ export default function IntroManagement() {
     }
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const result = e.target?.result as string
-        setImagePreview(result)
+      setUploading(true)
+      
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await fetch('/api/upload/logo', {
+          method: 'POST',
+          body: formData,
+        })
+
+        const result = await response.json()
+        
+        if (result.success) {
+          setImagePreview(result.fileUrl)
+        } else {
+          alert(result.error || 'เกิดข้อผิดพลาดในการอัปโหลด')
+        }
+      } catch (error) {
+        console.error('Upload error:', error)
+        alert('เกิดข้อผิดพลาดในการอัปโหลด')
+      } finally {
+        setUploading(false)
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -89,8 +108,23 @@ export default function IntroManagement() {
     setImagePreview('')
   }
 
-  const updateSlide = () => {
+  const updateSlide = async () => {
     if (!editingSlide || !imagePreview) return
+
+    // ลบไฟล์เก่าถ้ามีการเปลี่ยนรูปภาพ
+    if (editingSlide.image !== imagePreview && editingSlide.image.startsWith('/logo/')) {
+      try {
+        await fetch('/api/upload/logo/delete', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fileUrl: editingSlide.image }),
+        })
+      } catch (error) {
+        console.error('Error deleting old file:', error)
+      }
+    }
 
     const updatedData = {
       ...introData,
@@ -107,8 +141,26 @@ export default function IntroManagement() {
     setImagePreview('')
   }
 
-  const deleteSlide = (slideId: number) => {
+  const deleteSlide = async (slideId: number) => {
     if (confirm('คุณแน่ใจว่าต้องการลบสไลด์นี้?')) {
+      // หาสไลด์ที่จะลบ
+      const slideToDelete = introData.slides.find(slide => slide.id === slideId)
+      
+      // ลบไฟล์รูปภาพถ้ามี
+      if (slideToDelete?.image && slideToDelete.image.startsWith('/logo/')) {
+        try {
+          await fetch('/api/upload/logo/delete', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ fileUrl: slideToDelete.image }),
+          })
+        } catch (error) {
+          console.error('Error deleting file:', error)
+        }
+      }
+      
       const updatedData = {
         ...introData,
         slides: introData.slides.filter(slide => slide.id !== slideId)
@@ -196,8 +248,12 @@ export default function IntroManagement() {
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="w-full"
+                  disabled={uploading}
+                  className="w-full disabled:opacity-50"
                 />
+                {uploading && (
+                  <p className="text-sm text-blue-600 mt-1">กำลังอัปโหลด...</p>
+                )}
               </div>
               {imagePreview && (
                 <div className="aspect-video bg-gray-200 rounded">
@@ -210,19 +266,44 @@ export default function IntroManagement() {
               )}
               <div className="flex justify-end space-x-2">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    // ถ้ามีการอัปโหลดไฟล์ใหม่แล้วยกเลิก ให้ลบไฟล์ที่อัปโหลด
+                    if (imagePreview && imagePreview.startsWith('/logo/') && imagePreview !== (editingSlide?.image || '')) {
+                      try {
+                        await fetch('/api/upload/logo/delete', {
+                          method: 'DELETE',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({ fileUrl: imagePreview }),
+                        })
+                      } catch (error) {
+                        console.error('Error deleting uploaded file:', error)
+                      }
+                    }
+                    
                     setShowAddForm(false)
                     setImagePreview('')
                   }}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+                  disabled={uploading}
+                  className={`px-4 py-2 rounded transition-colors ${
+                    uploading 
+                      ? 'bg-gray-400 text-white cursor-not-allowed' 
+                      : 'bg-gray-500 text-white hover:bg-gray-600'
+                  }`}
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={addSlide}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                  disabled={uploading || !imagePreview}
+                  className={`px-4 py-2 rounded transition-colors ${
+                    uploading || !imagePreview
+                      ? 'bg-gray-400 text-white cursor-not-allowed' 
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
                 >
-                  เพิ่มสไลด์
+                  {uploading ? 'กำลังบันทึก...' : 'เพิ่มสไลด์'}
                 </button>
               </div>
             </div>
@@ -244,8 +325,12 @@ export default function IntroManagement() {
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="w-full"
+                  disabled={uploading}
+                  className="w-full disabled:opacity-50"
                 />
+                {uploading && (
+                  <p className="text-sm text-blue-600 mt-1">กำลังอัปโหลด...</p>
+                )}
               </div>
               {imagePreview && (
                 <div className="aspect-video bg-gray-200 rounded">
@@ -258,19 +343,44 @@ export default function IntroManagement() {
               )}
               <div className="flex justify-end space-x-2">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    // ถ้ามีการอัปโหลดไฟล์ใหม่แล้วยกเลิก ให้ลบไฟล์ที่อัปโหลด
+                    if (imagePreview && imagePreview.startsWith('/logo/') && imagePreview !== (editingSlide?.image || '')) {
+                      try {
+                        await fetch('/api/upload/logo/delete', {
+                          method: 'DELETE',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({ fileUrl: imagePreview }),
+                        })
+                      } catch (error) {
+                        console.error('Error deleting uploaded file:', error)
+                      }
+                    }
+                    
                     setEditingSlide(null)
                     setImagePreview('')
                   }}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+                  disabled={uploading}
+                  className={`px-4 py-2 rounded transition-colors ${
+                    uploading 
+                      ? 'bg-gray-400 text-white cursor-not-allowed' 
+                      : 'bg-gray-500 text-white hover:bg-gray-600'
+                  }`}
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={updateSlide}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                  disabled={uploading || !imagePreview}
+                  className={`px-4 py-2 rounded transition-colors ${
+                    uploading || !imagePreview
+                      ? 'bg-gray-400 text-white cursor-not-allowed' 
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
                 >
-                  บันทึก
+                  {uploading ? 'กำลังบันทึก...' : 'บันทึก'}
                 </button>
               </div>
             </div>
