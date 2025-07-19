@@ -254,17 +254,17 @@ export default function PromotionManagement() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+    <div className="space-y-6 md:space-y-8">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center bg-white p-4 md:p-6 rounded-xl shadow-lg border border-gray-100 gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">จัดการโปรโมชันรถยนต์</h2>
-          <p className="text-gray-600">จัดการหมวดหมู่และรูปภาพโปรโมชัน Ford</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">จัดการโปรโมชันรถยนต์</h2>
+          <p className="text-sm md:text-base text-gray-600">จัดการหมวดหมู่และรูปภาพโปรโมชัน Ford</p>
         </div>
         <button
           onClick={() => setShowAddCategoryForm(true)}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg flex items-center space-x-2"
+          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center space-x-2 text-sm md:text-base"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           <span>เพิ่มหมวดหมู่ใหม่</span>
@@ -273,9 +273,9 @@ export default function PromotionManagement() {
 
       {/* แสดงรายการหมวดหมู่ */}
       {Object.entries(promotionData).map(([categoryName, items]) => (
-        <div key={categoryName} className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center space-x-6">
+        <div key={categoryName} className="bg-white rounded-xl shadow-lg p-4 md:p-6 lg:p-8 border border-gray-100">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-4 md:mb-6 gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 lg:space-x-6">
               {editingCategory === categoryName ? (
                 <div className="flex items-center space-x-3">
                   <input
@@ -290,28 +290,28 @@ export default function PromotionManagement() {
                       }
                     }}
                     onBlur={(e) => editCategoryName(categoryName, e.target.value)}
-                    className="text-2xl font-bold text-blue-600 border-2 border-blue-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+                    className="text-lg md:text-xl lg:text-2xl font-bold text-blue-600 border-2 border-blue-300 rounded-lg px-2 md:px-3 py-1 md:py-2 focus:outline-none focus:border-blue-500 w-full sm:w-auto"
                     autoFocus
                   />
                   <button
                     onClick={() => setEditingCategory('')}
-                    className="text-gray-500 hover:text-gray-700 text-xl"
+                    className="text-gray-500 hover:text-gray-700 text-lg md:text-xl"
                   >
                     ✕
                   </button>
                 </div>
               ) : (
                 <h3 
-                  className="text-2xl font-bold text-blue-600 cursor-pointer hover:text-blue-800 transition-colors"
+                  className="text-lg md:text-xl lg:text-2xl font-bold text-blue-600 cursor-pointer hover:text-blue-800 transition-colors"
                   onClick={() => setEditingCategory(categoryName)}
                 >
-                  📁 {categoryName} <span className="text-sm text-gray-500 ml-2">({items.length} รูป)</span>
+                  📁 {categoryName} <span className="text-xs md:text-sm text-gray-500 ml-2">({items.length} รูป)</span>
                 </h3>
               )}
               
               {/* ปุ่มอัปโหลดรูปภาพ */}
-              <label className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg cursor-pointer hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg flex items-center space-x-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <label className="bg-gradient-to-r from-green-600 to-green-700 text-white px-3 md:px-4 py-2 rounded-lg cursor-pointer hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center space-x-2 text-sm md:text-base w-full sm:w-auto">
+                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
                 <span>{uploading ? 'กำลังอัปโหลด...' : 'อัปโหลดรูปภาพ'}</span>
@@ -325,21 +325,21 @@ export default function PromotionManagement() {
               </label>
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full lg:w-auto">
               <button
                 onClick={() => setEditingCategory(categoryName)}
-                className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors shadow-md hover:shadow-lg flex items-center space-x-2"
+                className="bg-yellow-500 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors shadow-md hover:shadow-lg flex items-center justify-center space-x-2 text-sm md:text-base"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
                 <span>แก้ไขชื่อ</span>
               </button>
               <button
                 onClick={() => deleteCategory(categoryName)}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors shadow-md hover:shadow-lg flex items-center space-x-2"
+                className="bg-red-500 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-red-600 transition-colors shadow-md hover:shadow-lg flex items-center justify-center space-x-2 text-sm md:text-base"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
                 <span>ลบหมวดหมู่</span>
@@ -349,7 +349,7 @@ export default function PromotionManagement() {
 
           {/* แสดงรูปภาพในหมวดหมู่ */}
           <div className="relative">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4">
               {getCurrentPageItems(items, categoryName).map((item) => (
                 <div key={item.id} className="relative group">
                   <div 
@@ -367,7 +367,7 @@ export default function PromotionManagement() {
                       e.stopPropagation()
                       deleteImage(categoryName, item.id)
                     }}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
+                    className="absolute top-1 right-1 md:top-2 md:right-2 bg-red-500 text-white rounded-full w-5 h-5 md:w-6 md:h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10 text-xs md:text-sm"
                   >
                     ✕
                   </button>
@@ -376,7 +376,7 @@ export default function PromotionManagement() {
               
               {/* แสดงข้อความเมื่อไม่มีรูปภาพ */}
               {items.length === 0 && (
-                <div className="col-span-full text-center py-8 text-gray-500">
+                <div className="col-span-full text-center py-6 md:py-8 text-gray-500 text-sm md:text-base">
                   ยังไม่มีรูปภาพในหมวดหมู่นี้
                 </div>
               )}
@@ -384,23 +384,23 @@ export default function PromotionManagement() {
 
             {/* ปุ่มลูกศรและตัวบ่งชี้หน้า */}
             {items.length > ITEMS_PER_PAGE && (
-              <div className="flex justify-between items-center mt-4">
+              <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3">
                 <button
                   onClick={() => prevPage(categoryName)}
                   disabled={(currentPage[categoryName] || 0) === 0}
-                  className={`p-2 rounded-full shadow-md transition-all duration-200 ${
+                  className={`p-2 rounded-full shadow-md transition-all duration-200 order-1 sm:order-none ${
                     (currentPage[categoryName] || 0) === 0
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       : 'bg-white text-gray-700 hover:bg-gray-50 hover:shadow-lg'
                   }`}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
 
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">
+                <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 order-3 sm:order-none">
+                  <span className="text-xs md:text-sm text-gray-600">
                     หน้า {(currentPage[categoryName] || 0) + 1} จาก {getTotalPages(items)}
                   </span>
                   <div className="flex space-x-1">
@@ -421,13 +421,13 @@ export default function PromotionManagement() {
                 <button
                   onClick={() => nextPage(categoryName, getTotalPages(items))}
                   disabled={(currentPage[categoryName] || 0) === getTotalPages(items) - 1}
-                  className={`p-2 rounded-full shadow-md transition-all duration-200 ${
+                  className={`p-2 rounded-full shadow-md transition-all duration-200 order-2 sm:order-none ${
                     (currentPage[categoryName] || 0) === getTotalPages(items) - 1
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       : 'bg-white text-gray-700 hover:bg-gray-50 hover:shadow-lg'
                   }`}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -439,22 +439,22 @@ export default function PromotionManagement() {
 
       {/* แสดงข้อความเมื่อไม่มีหมวดหมู่ */}
       {Object.keys(promotionData).length === 0 && (
-        <div className="text-center py-16 bg-white rounded-xl shadow-lg border border-gray-100">
+        <div className="text-center py-12 md:py-16 bg-white rounded-xl shadow-lg border border-gray-100">
           <div className="flex flex-col items-center space-y-4">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-100 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 md:w-12 md:h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-700">ยังไม่มีหมวดหมู่</h3>
-            <p className="text-gray-500 max-w-md">
+            <h3 className="text-lg md:text-xl font-semibold text-gray-700">ยังไม่มีหมวดหมู่</h3>
+            <p className="text-sm md:text-base text-gray-500 max-w-md text-center px-4">
               เริ่มต้นโดยการสร้างหมวดหมู่แรกของคุณ เช่น Ranger, Everest หรือ Raptor
             </p>
             <button
               onClick={() => setShowAddCategoryForm(true)}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg flex items-center space-x-2"
+              className="bg-blue-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg flex items-center space-x-2 text-sm md:text-base"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               <span>เพิ่มหมวดหมู่แรก</span>
@@ -465,9 +465,9 @@ export default function PromotionManagement() {
 
       {/* ฟอร์มเพิ่มหมวดหมู่ */}
       {showAddCategoryForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">เพิ่มหมวดหมู่ใหม่</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 md:p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg md:text-xl font-bold mb-4">เพิ่มหมวดหมู่ใหม่</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -477,7 +477,7 @@ export default function PromotionManagement() {
                   type="text"
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm md:text-base"
                   placeholder="เช่น Ranger, Everest, Raptor"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -486,19 +486,19 @@ export default function PromotionManagement() {
                   }}
                 />
               </div>
-              <div className="flex justify-end space-x-2">
+              <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2">
                 <button
                   onClick={() => {
                     setShowAddCategoryForm(false)
                     setNewCategoryName('')
                   }}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors text-sm md:text-base w-full sm:w-auto"
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={addCategory}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm md:text-base w-full sm:w-auto"
                 >
                   เพิ่มหมวดหมู่
                 </button>
@@ -511,13 +511,13 @@ export default function PromotionManagement() {
       {/* Image Popup */}
       {showImagePopup && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-2 md:p-4"
           onClick={closeImagePopup}
         >
-          <div className="relative max-w-4xl max-h-full">
+          <div className="relative max-w-4xl max-h-full w-full">
             <button
               onClick={closeImagePopup}
-              className="absolute top-4 right-4 bg-white text-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors z-10 shadow-lg"
+              className="absolute top-2 right-2 md:top-4 md:right-4 bg-white text-gray-800 rounded-full w-8 h-8 md:w-10 md:h-10 flex items-center justify-center hover:bg-gray-100 transition-colors z-10 shadow-lg text-sm md:text-base"
             >
               ✕
             </button>
