@@ -1,0 +1,32 @@
+{
+  "contacts": [
+    {
+      "id": 1,
+      "name": "Facebook",
+      "type": "social",
+      "qrCode": "/contact/facebook.jpg",
+      "description": "ติดตามข่าวสารและโปรโมชั่นล่าสุด"
+    },
+    {
+      "id": 2,
+      "name": "Line",
+      "type": "chat",
+      "qrCode": "/contact/line.jpg",
+      "description": "สอบถามข้อมูลและรับคำปรึกษา"
+    },
+    {
+      "id": 3,
+      "name": "TikTok",
+      "type": "social",
+      "qrCode": "/contact/tiktok.jpg",
+      "description": "ชมคลิปและรีวิวรถยนต์"
+    },
+    {
+      "id": 4,
+      "name": "YouTube",
+      "type": "video",
+      "qrCode": "/contact/youtube.jpg",
+      "description": "รับชมวิดีโอและการทดสอบรถ"
+    }
+  ]
+}

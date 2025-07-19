@@ -1,0 +1,33 @@
+{
+  "companyInfo": {
+    "name": "Ford Thailand",
+    "description": "ตัวแทนจำหน่ายรถยนต์ Ford อย่างเป็นทางการ มีให้บริการครบครัน ทั้งขายรถใหม่ รถมือสอง และบริการหลังการขาย",
+    "phone": "02-123-4567",
+    "email": "info@ford-thailand.com",
+    "address": "123/45 ถนนสุขุมวิท กรุงเทพฯ 10110"
+  },
+  "workingHours": {
+    "weekdays": "",
+    "weekends": ""
+  },
+  "socialMedia": [
+    {
+      "id": 1,
+      "name": "Facebook",
+      "url": "#",
+      "icon": "facebook"
+    },
+    {
+      "id": 2,
+      "name": "Twitter",
+      "url": "#",
+      "icon": "twitter"
+    },
+    {
+      "id": 3,
+      "name": "Line",
+      "url": "#",
+      "icon": "line"
+    }
+  ]
+}
