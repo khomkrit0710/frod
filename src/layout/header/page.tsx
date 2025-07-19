@@ -84,12 +84,12 @@ export default function page() {
   }
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 bg-[#1e3b6d] shadow-sm border-b border-blue-100 sticky top-0 z-50">
+    <div className="flex items-center justify-between px-10  bg-[#1e3b6d] shadow-sm border-b border-blue-100 sticky top-0 z-50">
       <div>
         <img 
           src={imageData.logo} 
           alt="Ford Logo"
-          width={70}
+          width={56}
           height={35}
           className="cursor-pointer"
           onClick={() => scrollToSection('intro')}
