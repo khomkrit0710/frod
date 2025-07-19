@@ -17,6 +17,8 @@ export default function IntroManagement() {
   const [editingSlide, setEditingSlide] = useState<IntroSlide | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
   const [imagePreview, setImagePreview] = useState<string>('')
+  const [selectedImage, setSelectedImage] = useState<string>('')
+  const [showImagePopup, setShowImagePopup] = useState(false)
 
   useEffect(() => {
     loadIntroData()
@@ -117,6 +119,16 @@ export default function IntroManagement() {
     }
   }
 
+  const openImagePopup = (imageUrl: string) => {
+    setSelectedImage(imageUrl)
+    setShowImagePopup(true)
+  }
+
+  const closeImagePopup = () => {
+    setShowImagePopup(false)
+    setSelectedImage('')
+  }
+
   if (loading) {
     return <div className="text-center py-8">กำลังโหลดข้อมูล...</div>
   }
@@ -136,12 +148,15 @@ export default function IntroManagement() {
       {/* แสดงรายการสไลด์ */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {introData.slides.map((slide) => (
-          <div key={slide.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="aspect-video bg-gray-200">
+          <div key={slide.id} className="bg-white rounded-lg shadow-md overflow-hidden group">
+            <div 
+              className="aspect-video bg-gray-200 cursor-pointer transform transition-all duration-300 hover:scale-105"
+              onClick={() => openImagePopup(slide.image)}
+            >
               <img
                 src={slide.image}
                 alt={`Slide ${slide.id}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
             </div>
             <div className="p-4">
@@ -259,6 +274,29 @@ export default function IntroManagement() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Popup */}
+      {showImagePopup && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+          onClick={closeImagePopup}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <button
+              onClick={closeImagePopup}
+              className="absolute top-4 right-4 bg-white text-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors z-10 shadow-lg"
+            >
+              ✕
+            </button>
+            <img
+              src={selectedImage}
+              alt="Preview"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>
       )}

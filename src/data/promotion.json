@@ -2,52 +2,37 @@
   "Ranger": [
     {
       "id": 1,
-      "name": "Ford Ranger Raptor",
       "image": "/promotions/1.jpg"
     },
     {
       "id": 2,
-      "name": "Ford Ranger Wildtrak",
       "image": "/promotions/2.jpg"
     },
     {
       "id": 3,
-      "name": "Ford Ranger XLT",
       "image": "/promotions/3.jpg"
     },
     {
       "id": 4,
-      "name": "Ford Ranger XLT",
       "image": "/promotions/7.jpg"
     },
     {
       "id": 5,
-      "name": "Ford Ranger XLT",
       "image": "/promotions/8.jpg"
     },
     {
       "id": 6,
-      "name": "Ford Ranger XLT",
       "image": "/promotions/9.jpg"
     }
   ],
   "Everest": [
     {
       "id": 7,
-      "name": "Ford Everest Titanium",
       "image": "/promotions/4.jpg"
     },
     {
       "id": 8,
-      "name": "Ford Everest Trend",
       "image": "/promotions/5.jpg"
-    }
-  ],
-  "Raptor": [
-    {
-      "id": 9,
-      "name": "Ford Ranger Raptor X",
-      "image": "/promotions/6.jpg"
     }
   ]
 }
