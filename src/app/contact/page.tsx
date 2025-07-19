@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Header from '../../layout/header/page'
 import FooterPage from '../../layout/footer/page'
 import introData from '../../data/intro.json'
-
+import MapPage from '../../layout/map/page'
 interface ContactData {
   contacts: Array<{
     id: number
@@ -252,7 +252,8 @@ export default function ContactPage() {
         </div>
       )}
 
-      {/* Footer */}
+      <MapPage />
+
       <FooterPage />
     </div>
   )

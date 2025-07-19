@@ -7,7 +7,9 @@ import Header from '../layout/header/page'
 import IntroPage from '../components/intro/page'
 import WorkingPage from '../components/working/page'
 import PromotionPage from '../components/promotion/page'
+import GalleryPage from '../components/gallery/page'
 import FooterPage from '../layout/footer/page'
+import MapPage from '../layout/map/page'
 
 export default function Home() {
   const searchParams = useSearchParams()
@@ -33,6 +35,8 @@ export default function Home() {
       <div className='mx-10'>
         <WorkingPage />
         <PromotionPage />
+        <GalleryPage />
+        <MapPage />
       </div>
       <FooterPage />
     </div>

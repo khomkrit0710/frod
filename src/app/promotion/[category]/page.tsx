@@ -84,7 +84,6 @@ export default function CategoryPromotionPage() {
           </div>
         </div>
       )}
-
       {/* Footer */}
       <FooterPage />
     </div>

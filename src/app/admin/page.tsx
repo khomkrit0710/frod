@@ -6,6 +6,7 @@ import IntroManagement from '../../components/admin/IntroManagement'
 import PromotionManagement from '../../components/admin/PromotionManagement'
 import VideoManagement from '../../components/admin/VideoManagement'
 import ImageManagement from '../../components/admin/ImageManagement'
+import GalleryManagement from '../../components/admin/GalleryManagement'
 import ContactManagement from '../../components/admin/ContactManagement'
 import CompanyManagement from '../../components/admin/CompanyManagement'
 
@@ -51,6 +52,7 @@ export default function AdminDashboard() {
     { id: 'promotion', name: 'จัดการโปรโมชัน', icon: '🚗' },
     { id: 'video', name: 'จัดการวิดีโอ', icon: '📹' },
     { id: 'images', name: 'จัดการรูปภาพ', icon: '🖼️' },
+    { id: 'gallery', name: 'จัดการแกลเลอรี่', icon: '🎨' },
     { id: 'contact', name: 'จัดการ QR Code', icon: '📞' },
     { id: 'company', name: 'จัดการข้อมูลบริษัท', icon: '🏢' }
   ]
@@ -108,6 +110,7 @@ export default function AdminDashboard() {
         {activeTab === 'promotion' && <PromotionManagement />}
         {activeTab === 'video' && <VideoManagement />}
         {activeTab === 'images' && <ImageManagement />}
+        {activeTab === 'gallery' && <GalleryManagement />}
         {activeTab === 'contact' && <ContactManagement />}
         {activeTab === 'company' && <CompanyManagement />}
       </div>
