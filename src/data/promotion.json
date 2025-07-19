@@ -3,73 +3,31 @@
     {
       "id": 1,
       "name": "Ford Ranger Raptor",
-      "price": "1,899,000",
-      "originalPrice": "2,100,000",
-      "discount": "201,000",
-      "warranty": "3 ปี หรือ 100,000 กม.",
-      "colors": ["ขาว", "เงิน", "ดำ", "น้ำเงิน"],
-      "description": "กระบะสมรรถนะสูงที่ออกแบบมาเพื่อการขับขี่ออฟโรด",
-      "features": ["เครื่องยนต์ V6 Twin-Turbo", "ระบบขับเคลื่อน 4WD", "ระบบกันสะเทือน Fox Racing"],
       "image": "/promotions/1.jpg"
     },
     {
       "id": 2,
       "name": "Ford Ranger Wildtrak",
-      "price": "1,299,000",
-      "originalPrice": "1,450,000",
-      "discount": "151,000",
-      "warranty": "3 ปี หรือ 100,000 กม.",
-      "colors": ["ขาว", "เงิน", "ดำ", "แดง"],
-      "description": "กระบะสุดหรูที่ผสมผสานความแกร่งและความสะดวกสบาย",
-      "features": ["เครื่องยนต์ดีเซล 2.0L", "ระบบ SYNC 3", "ระบบขับเคลื่อน 4WD"],
       "image": "/promotions/2.jpg"
     },
     {
       "id": 3,
       "name": "Ford Ranger XLT",
-      "price": "899,000",
-      "originalPrice": "999,000",
-      "discount": "100,000",
-      "warranty": "3 ปี หรือ 100,000 กม.",
-      "colors": ["ขาว", "เงิน", "ดำ"],
-      "description": "กระบะที่ตอบโจทย์การใช้งานทั้งเมืองและทำงาน",
-      "features": ["เครื่องยนต์ดีเซล 2.0L", "ระบบความปลอดภัย 6 ถุงลม", "ระบบขับเคลื่อน 4WD"],
       "image": "/promotions/3.jpg"
     },
     {
       "id": 4,
       "name": "Ford Ranger XLT",
-      "price": "899,000",
-      "originalPrice": "999,000",
-      "discount": "100,000",
-      "warranty": "3 ปี หรือ 100,000 กม.",
-      "colors": ["ขาว", "เงิน", "ดำ"],
-      "description": "กระบะที่ตอบโจทย์การใช้งานทั้งเมืองและทำงาน",
-      "features": ["เครื่องยนต์ดีเซล 2.0L", "ระบบความปลอดภัย 6 ถุงลม", "ระบบขับเคลื่อน 4WD"],
       "image": "/promotions/7.jpg"
     },
     {
       "id": 5,
       "name": "Ford Ranger XLT",
-      "price": "899,000",
-      "originalPrice": "999,000",
-      "discount": "100,000",
-      "warranty": "3 ปี หรือ 100,000 กม.",
-      "colors": ["ขาว", "เงิน", "ดำ"],
-      "description": "กระบะที่ตอบโจทย์การใช้งานทั้งเมืองและทำงาน",
-      "features": ["เครื่องยนต์ดีเซล 2.0L", "ระบบความปลอดภัย 6 ถุงลม", "ระบบขับเคลื่อน 4WD"],
       "image": "/promotions/8.jpg"
     },
     {
       "id": 6,
       "name": "Ford Ranger XLT",
-      "price": "899,000",
-      "originalPrice": "999,000",
-      "discount": "100,000",
-      "warranty": "3 ปี หรือ 100,000 กม.",
-      "colors": ["ขาว", "เงิน", "ดำ"],
-      "description": "กระบะที่ตอบโจทย์การใช้งานทั้งเมืองและทำงาน",
-      "features": ["เครื่องยนต์ดีเซล 2.0L", "ระบบความปลอดภัย 6 ถุงลม", "ระบบขับเคลื่อน 4WD"],
       "image": "/promotions/9.jpg"
     }
   ],
@@ -77,25 +35,11 @@
     {
       "id": 7,
       "name": "Ford Everest Titanium",
-      "price": "1,649,000",
-      "originalPrice": "1,799,000",
-      "discount": "150,000",
-      "warranty": "3 ปี หรือ 100,000 กม.",
-      "colors": ["ขาว", "เงิน", "ดำ", "น้ำเงิน"],
-      "description": "SUV ขนาดใหญ่ที่หรูหราและทรงพลัง",
-      "features": ["เครื่องยนต์ดีเซล 2.0L Bi-Turbo", "ที่นั่ง 7 ที่นั่ง", "ระบบขับเคลื่อน 4WD"],
       "image": "/promotions/4.jpg"
     },
     {
       "id": 8,
       "name": "Ford Everest Trend",
-      "price": "1,299,000",
-      "originalPrice": "1,399,000",
-      "discount": "100,000",
-      "warranty": "3 ปี หรือ 100,000 กม.",
-      "colors": ["ขาว", "เงิน", "ดำ"],
-      "description": "SUV ครอบครัวที่ตอบโจทย์การใช้งานทุกรูปแบบ",
-      "features": ["เครื่องยนต์ดีเซล 2.0L", "ที่นั่ง 7 ที่นั่ง", "ระบบความปลอดภัย"],
       "image": "/promotions/5.jpg"
     }
   ],
@@ -103,13 +47,6 @@
     {
       "id": 9,
       "name": "Ford Ranger Raptor X",
-      "price": "2,199,000",
-      "originalPrice": "2,399,000",
-      "discount": "200,000",
-      "warranty": "3 ปี หรือ 100,000 กม.",
-      "colors": ["ขาว", "ดำ", "เทา"],
-      "description": "เวอร์ชันพิเศษที่ปรับแต่งมาเพื่อการขับขี่ออฟโรดสุดเอ็กซ์ตรีม",
-      "features": ["เครื่องยนต์ V6 Twin-Turbo", "ระบบกันสะเทือน Fox Racing", "ล้อแม็ก BFGoodrich"],
       "image": "/promotions/6.jpg"
     }
   ]

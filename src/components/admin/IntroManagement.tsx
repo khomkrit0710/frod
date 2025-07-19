@@ -1,0 +1,267 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+
+interface IntroSlide {
+  id: number
+  image: string
+}
+
+interface IntroData {
+  slides: IntroSlide[]
+}
+
+export default function IntroManagement() {
+  const [introData, setIntroData] = useState<IntroData>({ slides: [] })
+  const [loading, setLoading] = useState(true)
+  const [editingSlide, setEditingSlide] = useState<IntroSlide | null>(null)
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string>('')
+
+  useEffect(() => {
+    loadIntroData()
+  }, [])
+
+  const loadIntroData = async () => {
+    try {
+      const response = await fetch('/api/data/intro')
+      const data = await response.json()
+      setIntroData(data)
+    } catch (error) {
+      console.error('Error loading intro data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const saveIntroData = async (data: IntroData) => {
+    try {
+      const response = await fetch('/api/data/intro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+      if (response.ok) {
+        await loadIntroData()
+        alert('บันทึกข้อมูลสำเร็จ')
+      }
+    } catch (error) {
+      console.error('Error saving intro data:', error)
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล')
+    }
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result as string
+        setImagePreview(result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const addSlide = () => {
+    if (!imagePreview) {
+      alert('กรุณาเลือกรูปภาพ')
+      return
+    }
+
+    const newSlide: IntroSlide = {
+      id: Date.now(),
+      image: imagePreview
+    }
+
+    const updatedData = {
+      ...introData,
+      slides: [...introData.slides, newSlide]
+    }
+
+    setIntroData(updatedData)
+    saveIntroData(updatedData)
+    setShowAddForm(false)
+    setImagePreview('')
+  }
+
+  const updateSlide = () => {
+    if (!editingSlide || !imagePreview) return
+
+    const updatedData = {
+      ...introData,
+      slides: introData.slides.map(slide =>
+        slide.id === editingSlide.id
+          ? { ...slide, image: imagePreview }
+          : slide
+      )
+    }
+
+    setIntroData(updatedData)
+    saveIntroData(updatedData)
+    setEditingSlide(null)
+    setImagePreview('')
+  }
+
+  const deleteSlide = (slideId: number) => {
+    if (confirm('คุณแน่ใจว่าต้องการลบสไลด์นี้?')) {
+      const updatedData = {
+        ...introData,
+        slides: introData.slides.filter(slide => slide.id !== slideId)
+      }
+
+      setIntroData(updatedData)
+      saveIntroData(updatedData)
+    }
+  }
+
+  if (loading) {
+    return <div className="text-center py-8">กำลังโหลดข้อมูล...</div>
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900">จัดการแบนเนอร์/สไลด์</h2>
+        <button
+          onClick={() => setShowAddForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+        >
+          เพิ่มสไลด์ใหม่
+        </button>
+      </div>
+
+      {/* แสดงรายการสไลด์ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {introData.slides.map((slide) => (
+          <div key={slide.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="aspect-video bg-gray-200">
+              <img
+                src={slide.image}
+                alt={`Slide ${slide.id}`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="p-4">
+              <div className="flex justify-between">
+                <button
+                  onClick={() => {
+                    setEditingSlide(slide)
+                    setImagePreview(slide.image)
+                  }}
+                  className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition-colors"
+                >
+                  แก้ไข
+                </button>
+                <button
+                  onClick={() => deleteSlide(slide.id)}
+                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors"
+                >
+                  ลบ
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ฟอร์มเพิ่มสไลด์ */}
+      {showAddForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold mb-4">เพิ่มสไลด์ใหม่</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  เลือกรูปภาพ
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full"
+                />
+              </div>
+              {imagePreview && (
+                <div className="aspect-video bg-gray-200 rounded">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover rounded"
+                  />
+                </div>
+              )}
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => {
+                    setShowAddForm(false)
+                    setImagePreview('')
+                  }}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={addSlide}
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                >
+                  เพิ่มสไลด์
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ฟอร์มแก้ไขสไลด์ */}
+      {editingSlide && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold mb-4">แก้ไขสไลด์</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  เลือกรูปภาพใหม่
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full"
+                />
+              </div>
+              {imagePreview && (
+                <div className="aspect-video bg-gray-200 rounded">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover rounded"
+                  />
+                </div>
+              )}
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => {
+                    setEditingSlide(null)
+                    setImagePreview('')
+                  }}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={updateSlide}
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                >
+                  บันทึก
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
