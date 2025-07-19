@@ -17,7 +17,7 @@ export default function page() {
     <div className="flex items-center justify-between px-4 py-2 bg-[#1e3b6d] shadow-sm border-b border-blue-100 sticky top-0 z-50">
       <div>
         <img 
-          src="/image_test/logo.png" 
+          src="/logo/logo2.png" 
           alt="Ford Logo"
           width={70}
           height={35}
