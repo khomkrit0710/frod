@@ -2,19 +2,19 @@
   "companyInfo": {
     "name": "Ford Thailand",
     "description": "ตัวแทนจำหน่ายรถยนต์ Ford อย่างเป็นทางการ มีให้บริการครบครัน ทั้งขายรถใหม่ รถมือสอง และบริการหลังการขาย",
-    "phone": "02-123-4567",
-    "email": "info@ford-thailand.com",
-    "address": "123/45 ถนนสุขุมวิท กรุงเทพฯ 10110"
+    "phone": "08 7666 5565",
+    "email": "thanakorn.mf@neoautogroup.com",
+    "address": "31 ถ. พระรามที่ 2 แขวงท่าข้าม เขตบางขุนเทียน กรุงเทพมหานคร 10150"
   },
   "workingHours": {
-    "weekdays": "",
-    "weekends": ""
+    "weekdays": "จันทร์-เสาร์ 8:30–19:00",
+    "weekends": "อาทิตย์ ปิดทำการ"
   },
   "socialMedia": [
     {
       "id": 1,
       "name": "Facebook",
-      "url": "#",
+      "url": "https://www.facebook.com/ford.style.me",
       "icon": "facebook"
     },
     {

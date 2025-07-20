@@ -8,6 +8,7 @@ interface Contact {
   type: string
   qrCode: string
   description: string
+  url: string
 }
 
 interface ContactData {
@@ -66,7 +67,8 @@ export default function ContactManagement() {
       name: '',
       type: 'social',
       qrCode: '',
-      description: ''
+      description: '',
+      url: ''
     }
     setEditingContact(newContact)
     setOriginalQrCode('') // ไม่มี QR code เดิม
@@ -205,6 +207,7 @@ export default function ContactManagement() {
               />
               <h3 className="font-semibold text-lg">{contact.name}</h3>
               <p className="text-gray-600 text-sm mb-2">{contact.description}</p>
+              <p className="text-blue-600 text-sm mb-2 break-all">{contact.url}</p>
               <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-3">
                 {contact.type}
               </span>
@@ -304,6 +307,17 @@ export default function ContactManagement() {
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   className="w-full p-2 border rounded h-20"
                   placeholder="คำอธิบายเกี่ยวกับช่องทางติดต่อนี้"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">ลิงก์ URL</label>
+                <input
+                  type="url"
+                  value={editingContact.url}
+                  onChange={(e) => handleInputChange('url', e.target.value)}
+                  className="w-full p-2 border rounded"
+                  placeholder="https://www.facebook.com/yourpage"
                 />
               </div>
             </div>

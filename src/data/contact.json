@@ -5,28 +5,32 @@
       "name": "Facebook",
       "type": "social",
       "qrCode": "/contact/facebook.jpg",
-      "description": "ติดตามข่าวสารและโปรโมชั่นล่าสุด"
+      "description": "ติดตามข่าวสารและโปรโมชั่นล่าสุด",
+      "url": "https://www.facebook.com/ford.style.me"
     },
     {
       "id": 2,
       "name": "Line",
       "type": "chat",
       "qrCode": "/contact/line.jpg",
-      "description": "สอบถามข้อมูลและรับคำปรึกษา"
+      "description": "สอบถามข้อมูลและรับคำปรึกษา",
+      "url": "https://lin.ee/F9sy7aG"
     },
     {
       "id": 3,
       "name": "TikTok",
       "type": "social",
       "qrCode": "/contact/tiktok.jpg",
-      "description": "ชมคลิปและรีวิวรถยนต์"
+      "description": "ชมคลิปและรีวิวรถยนต์",
+      "url": "https://www.tiktok.com/@ford.style.me?_t=ZS-8xV4v2n4np4&_r=1"
     },
     {
       "id": 4,
       "name": "YouTube",
       "type": "video",
       "qrCode": "/contact/youtube.jpg",
-      "description": "รับชมวิดีโอและการทดสอบรถ"
+      "description": "รับชมวิดีโอและการทดสอบรถ",
+      "url": "https://www.youtube.com/@fordstyleme"
     }
   ]
 }

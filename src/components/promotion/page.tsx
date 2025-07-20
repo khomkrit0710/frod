@@ -50,14 +50,17 @@ export default function PromotionPage() {
                 <div className="mb-4">
                   <div className="relative overflow-hidden rounded-md cursor-pointer flex justify-center">
                     <img 
-                      src={currentMainImage.image} 
-                      alt={currentMainImage.name}
+                      src={currentMainImage?.image || '/placeholder.jpg'}
+                      alt={currentMainImage?.name || 'No image available'}
                       className="max-w-full max-h-[50vh] w-auto h-auto object-contain transition-transform duration-300 hover:scale-105"
-                      onClick={() => setSelectedImage(currentMainImage.image)}
+                      onClick={() => currentMainImage?.image && setSelectedImage(currentMainImage.image)}
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder.jpg';
+                      }}
                     />
                   </div>
                   <div className="text-center mt-2">
-                    <h3 className="text-base md:text-lg font-medium text-gray-800">{currentMainImage.name}</h3>
+                    <h3 className="text-base md:text-lg font-medium text-gray-800">{currentMainImage?.name || 'ยังไม่มีรูปภาพในขณะนี้'}</h3>
                   </div>
                 </div>
                 
@@ -79,14 +82,14 @@ export default function PromotionPage() {
                 <div className="w-1/2">
                   <div className="relative overflow-hidden rounded-md cursor-pointer flex justify-center">
                     <img 
-                      src={currentMainImage.image} 
-                      alt={currentMainImage.name}
+                      src={currentMainImage?.image || '/placeholder.jpg'} 
+                      alt={currentMainImage?.name || 'No image available'}
                       className="max-w-full max-h-[70vh] w-auto h-auto object-contain transition-transform duration-300 hover:scale-105"
-                      onClick={() => setSelectedImage(currentMainImage.image)}
+                      onClick={() => currentMainImage?.image && setSelectedImage(currentMainImage.image)}
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder.jpg';
+                      }}
                     />
-                  </div>
-                  <div className="text-center mt-3">
-                    <h3 className="text-lg font-medium text-gray-800">{currentMainImage.name}</h3>
                   </div>
                 </div>
                 

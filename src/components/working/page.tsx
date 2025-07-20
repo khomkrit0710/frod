@@ -73,7 +73,7 @@ export default function WorkingPage() {
                     title={`Video ${video.id}`}
                     frameBorder="0"
                     allowFullScreen
-                    className="w-full h-32 object-cover"
+                    className="w-full h-56 object-cover"
                   />
                 </div>
                 <div className="absolute top-1 right-1 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs">
@@ -81,11 +81,8 @@ export default function WorkingPage() {
                 </div>
               </div>
               <div className="p-2 mt-2">
-                <h3 className="text-sm font-light text-blue-600 mb-1 line-clamp-2">
-                  Ford Video #{video.id}
-                </h3>
                 <p className="text-gray-600 text-xs line-clamp-2 mb-2">
-                  วิดีโอจาก Ford Thailand
+                  วิดีโอจาก FORD STYLE ME
                 </p>
                 <div className="mt-2 flex items-center justify-between">
                   <button 
