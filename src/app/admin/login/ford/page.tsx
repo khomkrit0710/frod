@@ -98,11 +98,11 @@ export default function AdminLogin() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600">
+        {/* <div className="mt-6 text-center text-sm text-gray-600">
           <p>ข้อมูลเริ่มต้น:</p>
           <p>Username: ford_admin</p>
           <p>Password: ford123456</p>
-        </div>
+        </div> */}
       </div>
     </div>
   )
