@@ -17,7 +17,7 @@ interface PromotionData {
   }>
 }
 
-export default function page() {
+export default function Page() {
   const router = useRouter()
   const pathname = usePathname()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)

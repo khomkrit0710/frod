@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Header from '../layout/header/page'
 import IntroPage from '../components/intro/page'
@@ -11,7 +11,7 @@ import GalleryPage from '../components/gallery/page'
 import FooterPage from '../layout/footer/page'
 import MapPage from '../layout/map/page'
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -40,5 +40,13 @@ export default function Home() {
       </div>
       <FooterPage />
     </div>
-  );
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
+  )
 }

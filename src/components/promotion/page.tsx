@@ -9,9 +9,9 @@ export default function PromotionPage() {
   const router = useRouter()
   const carCategories = Object.keys(promotionData)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const [mainImages, setMainImages] = useState<Record<string, any>>({})
+  const [mainImages, setMainImages] = useState<Record<string, { id: number; image: string; name?: string }>>({})
   
-  const CarCard = ({ car, category }: { car: any, category: string }) => (
+  const CarCard = ({ car, category }: { car: { id: number; image: string; name?: string }, category: string }) => (
     <div className="minimal-card p-2 md:p-3 flex-shrink-0">
       <div className="relative overflow-hidden rounded-md mb-2 md:mb-3 cursor-pointer">
         <img 
@@ -31,7 +31,7 @@ export default function PromotionPage() {
   return (
     <div className="minimal-section bg-white">
       {carCategories.map((category) => {
-        const cars = (promotionData as any)[category]
+        const cars = (promotionData as Record<string, Array<{ id: number; image: string; name?: string }>>)[category]
         const firstCar = cars[0]
         const currentMainImage = mainImages[category] || firstCar
         
@@ -68,7 +68,7 @@ export default function PromotionPage() {
                 <div className="mb-4">
                   <ScrollContainer className="max-h-[40vh] overflow-y-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {cars.map((car: any) => (
+                      {cars.map((car: { id: number; image: string; name?: string }) => (
                         <CarCard key={car.id} car={car} category={category} />
                       ))}
                     </div>
@@ -97,7 +97,7 @@ export default function PromotionPage() {
                 <div className="w-1/2">
                   <ScrollContainer className="max-h-[70vh] overflow-y-auto">
                     <div className="grid grid-cols-3 gap-3">
-                      {cars.map((car: any) => (
+                      {cars.map((car: { id: number; image: string; name?: string }) => (
                         <CarCard key={car.id} car={car} category={category} />
                       ))}
                     </div>

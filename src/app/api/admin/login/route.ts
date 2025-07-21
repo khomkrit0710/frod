@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       )
     }
-  } catch (error) {
+  } catch (err) {
+    console.error('Login error:', err)
     return NextResponse.json(
       { success: false, message: 'เกิดข้อผิดพลาดในระบบ' },
       { status: 500 }

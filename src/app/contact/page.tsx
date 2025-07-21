@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Header from '../../layout/header/page'
 import FooterPage from '../../layout/footer/page'
 import introData from '../../data/intro.json'
@@ -38,7 +37,6 @@ interface CompanyData {
 }
 
 export default function ContactPage() {
-  const router = useRouter()
   const [contactData, setContactData] = useState<ContactData>({ contacts: [] })
   const [companyData, setCompanyData] = useState<CompanyData | null>(null)
   const [selectedQR, setSelectedQR] = useState<string | null>(null)
@@ -82,7 +80,7 @@ export default function ContactPage() {
     }
   }
 
-  const ContactCard = ({ contact }: { contact: any }) => (
+  const ContactCard = ({ contact }: { contact: { id: number; name: string; type: string; qrCode: string; description: string; url: string } }) => (
     <div className="bg-white rounded-lg shadow-md p-4 md:p-6 hover:shadow-lg transition-shadow">
       <div className="text-center">
         <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-2">{contact.name}</h3>

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { verifyLogin } from '../../../../lib/admin'
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('')
@@ -37,7 +36,7 @@ export default function AdminLogin() {
       } else {
         setError(data.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง')
       }
-    } catch (error) {
+    } catch {
       setError('เกิดข้อผิดพลาดในการเชื่อมต่อ')
     }
     

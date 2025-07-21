@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     }
 
     // ตรวจสอบว่าผู้ใช้มีอยู่และรหัสผ่านปัจจุบันถูกต้อง
-    // @ts-ignore
+    // @ts-expect-error - adminData is a dynamic object with unknown keys
     const user = adminData[username]
     if (!user) {
       return NextResponse.json(

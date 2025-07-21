@@ -9,7 +9,8 @@ export async function GET() {
     const fileContents = fs.readFileSync(filePath, 'utf8')
     const data = JSON.parse(fileContents)
     return NextResponse.json(data)
-  } catch (error) {
+  } catch (err) {
+    console.error('Error reading working data:', err)
     return NextResponse.json(
       { error: 'ไม่สามารถอ่านข้อมูลได้' },
       { status: 500 }
@@ -25,7 +26,8 @@ export async function POST(request: NextRequest) {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8')
     
     return NextResponse.json({ success: true, message: 'บันทึกข้อมูลสำเร็จ' })
-  } catch (error) {
+  } catch (err) {
+    console.error('Error saving working data:', err)
     return NextResponse.json(
       { success: false, message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' },
       { status: 500 }

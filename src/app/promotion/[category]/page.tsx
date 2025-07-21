@@ -13,9 +13,9 @@ export default function CategoryPromotionPage() {
   
   const category = params.category as string
   const categoryName = category.charAt(0).toUpperCase() + category.slice(1)
-  const cars = (promotionData as any)[categoryName] || []
+  const cars = (promotionData as Record<string, Array<{ id: number; image: string }>>)[categoryName] || []
 
-  const CarCard = ({ car }: { car: any }) => (
+  const CarCard = ({ car }: { car: { id: number; image: string } }) => (
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
       <div className="relative overflow-hidden rounded-md mb-4 cursor-pointer">
         <img 
@@ -51,7 +51,7 @@ export default function CategoryPromotionPage() {
       <div className="container mx-auto px-4 py-8">
         {cars.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {cars.map((car: any) => (
+            {cars.map((car: { id: number; image: string }) => (
               <CarCard key={car.id} car={car} />
             ))}
           </div>
