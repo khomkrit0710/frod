@@ -1,23 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { promotionService, Category, Promotion } from '@/lib/supabase-services'
 
-interface PromotionItem {
-  id: number
-  image: string
-}
-
-interface PromotionData {
-  [key: string]: PromotionItem[]
+interface CategoryWithPromotions extends Category {
+  promotions: Promotion[]
 }
 
 export default function PromotionManagement() {
-  const [promotionData, setPromotionData] = useState<PromotionData>({})
+  const [categories, setCategories] = useState<CategoryWithPromotions[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddCategoryForm, setShowAddCategoryForm] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
-  const [editingCategory, setEditingCategory] = useState<string>('')
-  const [currentPage, setCurrentPage] = useState<{[key: string]: number}>({})
+  const [editingCategory, setEditingCategory] = useState<number | null>(null)
+  const [currentPage, setCurrentPage] = useState<{[key: number]: number}>({})
   const [selectedImage, setSelectedImage] = useState<string>('')
   const [showImagePopup, setShowImagePopup] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -25,144 +21,116 @@ export default function PromotionManagement() {
   const ITEMS_PER_PAGE = 6 // จำนวนรูปต่อหน้า (1 แถว)
 
   useEffect(() => {
-    loadPromotionData()
+    loadData()
   }, [])
 
-  const loadPromotionData = async () => {
+  const loadData = async () => {
     try {
-      const response = await fetch('/api/data/promotion')
-      const data = await response.json()
-      setPromotionData(data)
+      setLoading(true)
+      const [categoriesData, promotionsData] = await Promise.all([
+        promotionService.getCategories(),
+        promotionService.getPromotions()
+      ])
+
+      // Group promotions by category
+      const categoriesWithPromotions: CategoryWithPromotions[] = categoriesData.map(category => ({
+        ...category,
+        promotions: promotionsData
+          .filter(promotion => promotion.category_id === category.id)
+          .map(promotion => ({
+            id: promotion.id,
+            category_id: promotion.category_id,
+            image: promotion.image
+          }))
+      }))
+
+      setCategories(categoriesWithPromotions)
     } catch (error) {
-      console.error('Error loading promotion data:', error)
+      console.error('Error loading data:', error)
+      alert('เกิดข้อผิดพลาดในการโหลดข้อมูล')
     } finally {
       setLoading(false)
     }
   }
 
-  const savePromotionData = async (data: PromotionData) => {
-    try {
-      const response = await fetch('/api/data/promotion', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-      if (response.ok) {
-        await loadPromotionData()
-        alert('บันทึกข้อมูลสำเร็จ')
-      }
-    } catch (error) {
-      console.error('Error saving promotion data:', error)
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล')
-    }
-  }
-
-  const addCategory = () => {
+  const addCategory = async () => {
     if (!newCategoryName.trim()) {
       alert('กรุณาใส่ชื่อหมวดหมู่')
       return
     }
 
-    if (promotionData[newCategoryName]) {
+    if (categories.find(cat => cat.name === newCategoryName.trim())) {
       alert('หมวดหมู่นี้มีอยู่แล้ว')
       return
     }
 
-    const updatedData = {
-      ...promotionData,
-      [newCategoryName]: []
+    try {
+      await promotionService.createCategory(newCategoryName.trim())
+      await loadData()
+      setShowAddCategoryForm(false)
+      setNewCategoryName('')
+      alert('เพิ่มหมวดหมู่สำเร็จ')
+    } catch (error) {
+      console.error('Error adding category:', error)
+      alert('เกิดข้อผิดพลาดในการเพิ่มหมวดหมู่')
     }
-
-    setPromotionData(updatedData)
-    savePromotionData(updatedData)
-    setShowAddCategoryForm(false)
-    setNewCategoryName('')
   }
 
-  const deleteCategory = async (categoryName: string) => {
-    if (confirm(`คุณแน่ใจว่าต้องการลบหมวดหมู่ "${categoryName}" และรูปภาพทั้งหมดในหมวดหมู่นี้?`)) {
-      // ลบไฟล์รูปภาพทั้งหมดในหมวดหมู่
-      const itemsToDelete = promotionData[categoryName] || []
-      for (const item of itemsToDelete) {
-        if (item.image && item.image.startsWith('/promotions/')) {
+  const deleteCategory = async (category: CategoryWithPromotions) => {
+    if (confirm(`คุณแน่ใจว่าต้องการลบหมวดหมู่ "${category.name}" และรูปภาพทั้งหมดในหมวดหมู่นี้?`)) {
+      try {
+        // Delete all images from storage first
+        for (const promotion of category.promotions) {
           try {
-            await fetch('/api/upload/promotions/delete', {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ fileUrl: item.image }),
-            })
+            await promotionService.deleteImage(promotion.image)
           } catch (error) {
-            console.error('Error deleting file:', error)
+            console.error('Error deleting image:', error)
           }
         }
+        
+        // Delete category and all promotions
+        await promotionService.deleteCategory(category.id)
+        await loadData()
+        alert('ลบหมวดหมู่สำเร็จ')
+      } catch (error) {
+        console.error('Error deleting category:', error)
+        alert('เกิดข้อผิดพลาดในการลบหมวดหมู่')
       }
-      
-      const updatedData = { ...promotionData }
-      delete updatedData[categoryName]
-      
-      setPromotionData(updatedData)
-      savePromotionData(updatedData)
     }
   }
 
-  const editCategoryName = (oldName: string, newName: string) => {
+  const editCategoryName = async (category: CategoryWithPromotions, newName: string) => {
     if (!newName.trim()) {
       alert('กรุณาใส่ชื่อหมวดหมู่ใหม่')
       return
     }
 
-    if (newName !== oldName && promotionData[newName]) {
+    if (newName !== category.name && categories.find(cat => cat.name === newName.trim())) {
       alert('ชื่อหมวดหมู่นี้มีอยู่แล้ว')
       return
     }
 
-    const updatedData = { ...promotionData }
-    updatedData[newName] = updatedData[oldName]
-    if (newName !== oldName) {
-      delete updatedData[oldName]
+    try {
+      await promotionService.updateCategory(category.id, newName.trim())
+      await loadData()
+      setEditingCategory(null)
+      alert('แก้ไขชื่อหมวดหมู่สำเร็จ')
+    } catch (error) {
+      console.error('Error editing category:', error)
+      alert('เกิดข้อผิดพลาดในการแก้ไขชื่อหมวดหมู่')
     }
-
-    setPromotionData(updatedData)
-    savePromotionData(updatedData)
-    setEditingCategory('')
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, categoryName: string) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, category: CategoryWithPromotions) => {
     const file = e.target.files?.[0]
     if (file) {
       setUploading(true)
       
       try {
-        const formData = new FormData()
-        formData.append('file', file)
-
-        const response = await fetch('/api/upload/promotions', {
-          method: 'POST',
-          body: formData,
-        })
-
-        const result = await response.json()
-        
-        if (result.success) {
-          const newItem: PromotionItem = {
-            id: Date.now(),
-            image: result.fileUrl
-          }
-
-          const updatedData = {
-            ...promotionData,
-            [categoryName]: [...(promotionData[categoryName] || []), newItem]
-          }
-
-          setPromotionData(updatedData)
-          savePromotionData(updatedData)
-        } else {
-          alert(result.error || 'เกิดข้อผิดพลาดในการอัปโหลด')
-        }
+        const imageUrl = await promotionService.uploadImage(file)
+        await promotionService.createPromotion(category.id, imageUrl)
+        await loadData()
+        alert('อัปโหลดรูปภาพสำเร็จ')
       } catch (error) {
         console.error('Upload error:', error)
         alert('เกิดข้อผิดพลาดในการอัปโหลด')
@@ -172,70 +140,62 @@ export default function PromotionManagement() {
     }
   }
 
-  const deleteImage = async (categoryName: string, imageId: number) => {
+  const deleteImage = async (category: CategoryWithPromotions, promotion: Promotion) => {
     if (confirm('คุณแน่ใจว่าต้องการลบรูปภาพนี้?')) {
-      // หารูปภาพที่จะลบ
-      const imageToDelete = promotionData[categoryName].find(item => item.id === imageId)
-      
-      // ลบไฟล์รูปภาพถ้ามี
-      if (imageToDelete?.image && imageToDelete.image.startsWith('/promotions/')) {
-        try {
-          await fetch('/api/upload/promotions/delete', {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ fileUrl: imageToDelete.image }),
-          })
-        } catch (error) {
-          console.error('Error deleting file:', error)
+      try {
+        // Delete image from storage
+        await promotionService.deleteImage(promotion.image)
+        
+        // Delete promotion record
+        await promotionService.deletePromotion(promotion.id)
+        
+        await loadData()
+        
+        // Reset page if needed
+        const updatedCategory = categories.find(cat => cat.id === category.id)
+        if (updatedCategory) {
+          const totalItems = updatedCategory.promotions.length - 1
+          const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
+          const currentPageNum = currentPage[category.id] || 0
+          
+          if (currentPageNum >= totalPages && totalPages > 0) {
+            setCurrentPage(prev => ({
+              ...prev,
+              [category.id]: totalPages - 1
+            }))
+          }
         }
-      }
-      
-      const updatedData = {
-        ...promotionData,
-        [categoryName]: promotionData[categoryName].filter(item => item.id !== imageId)
-      }
-
-      setPromotionData(updatedData)
-      savePromotionData(updatedData)
-      
-      // รีเซ็ตหน้าเป็น 0 ถ้าหลังจากลบแล้วไม่มีรูปในหน้าปัจจุบัน
-      const totalItems = updatedData[categoryName].length
-      const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
-      const currentPageNum = currentPage[categoryName] || 0
-      
-      if (currentPageNum >= totalPages && totalPages > 0) {
-        setCurrentPage(prev => ({
-          ...prev,
-          [categoryName]: totalPages - 1
-        }))
+        
+        alert('ลบรูปภาพสำเร็จ')
+      } catch (error) {
+        console.error('Error deleting image:', error)
+        alert('เกิดข้อผิดพลาดในการลบรูปภาพ')
       }
     }
   }
 
-  const getCurrentPageItems = (items: PromotionItem[], categoryName: string) => {
-    const page = currentPage[categoryName] || 0
+  const getCurrentPageItems = (items: Promotion[], categoryId: number) => {
+    const page = currentPage[categoryId] || 0
     const startIndex = page * ITEMS_PER_PAGE
     const endIndex = startIndex + ITEMS_PER_PAGE
     return items.slice(startIndex, endIndex)
   }
 
-  const getTotalPages = (items: PromotionItem[]) => {
+  const getTotalPages = (items: Promotion[]) => {
     return Math.ceil(items.length / ITEMS_PER_PAGE)
   }
 
-  const nextPage = (categoryName: string, totalPages: number) => {
+  const nextPage = (categoryId: number, totalPages: number) => {
     setCurrentPage(prev => ({
       ...prev,
-      [categoryName]: Math.min((prev[categoryName] || 0) + 1, totalPages - 1)
+      [categoryId]: Math.min((prev[categoryId] || 0) + 1, totalPages - 1)
     }))
   }
 
-  const prevPage = (categoryName: string) => {
+  const prevPage = (categoryId: number) => {
     setCurrentPage(prev => ({
       ...prev,
-      [categoryName]: Math.max((prev[categoryName] || 0) - 1, 0)
+      [categoryId]: Math.max((prev[categoryId] || 0) - 1, 0)
     }))
   }
 
@@ -272,29 +232,29 @@ export default function PromotionManagement() {
       </div>
 
       {/* แสดงรายการหมวดหมู่ */}
-      {Object.entries(promotionData).map(([categoryName, items]) => (
-        <div key={categoryName} className="bg-white rounded-xl shadow-lg p-4 md:p-6 lg:p-8 border border-gray-100">
+      {categories.map((category) => (
+        <div key={category.id} className="bg-white rounded-xl shadow-lg p-4 md:p-6 lg:p-8 border border-gray-100">
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-4 md:mb-6 gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 lg:space-x-6">
-              {editingCategory === categoryName ? (
+              {editingCategory === category.id ? (
                 <div className="flex items-center space-x-3">
                   <input
                     type="text"
-                    defaultValue={categoryName}
+                    defaultValue={category.name}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        editCategoryName(categoryName, (e.target as HTMLInputElement).value)
+                        editCategoryName(category, (e.target as HTMLInputElement).value)
                       }
                       if (e.key === 'Escape') {
-                        setEditingCategory('')
+                        setEditingCategory(null)
                       }
                     }}
-                    onBlur={(e) => editCategoryName(categoryName, e.target.value)}
+                    onBlur={(e) => editCategoryName(category, e.target.value)}
                     className="text-lg md:text-xl lg:text-2xl font-bold text-blue-600 border-2 border-blue-300 rounded-lg px-2 md:px-3 py-1 md:py-2 focus:outline-none focus:border-blue-500 w-full sm:w-auto"
                     autoFocus
                   />
                   <button
-                    onClick={() => setEditingCategory('')}
+                    onClick={() => setEditingCategory(null)}
                     className="text-gray-500 hover:text-gray-700 text-lg md:text-xl"
                   >
                     ✕
@@ -303,9 +263,9 @@ export default function PromotionManagement() {
               ) : (
                 <h3 
                   className="text-lg md:text-xl lg:text-2xl font-bold text-blue-600 cursor-pointer hover:text-blue-800 transition-colors"
-                  onClick={() => setEditingCategory(categoryName)}
+                  onClick={() => setEditingCategory(category.id)}
                 >
-                  📁 {categoryName} <span className="text-xs md:text-sm text-gray-500 ml-2">({items.length} รูป)</span>
+                  📁 {category.name} <span className="text-xs md:text-sm text-gray-500 ml-2">({category.promotions.length} รูป)</span>
                 </h3>
               )}
               
@@ -318,7 +278,7 @@ export default function PromotionManagement() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleImageUpload(e, categoryName)}
+                  onChange={(e) => handleImageUpload(e, category)}
                   disabled={uploading}
                   className="hidden"
                 />
@@ -327,7 +287,7 @@ export default function PromotionManagement() {
 
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full lg:w-auto">
               <button
-                onClick={() => setEditingCategory(categoryName)}
+                onClick={() => setEditingCategory(category.id)}
                 className="bg-yellow-500 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors shadow-md hover:shadow-lg flex items-center justify-center space-x-2 text-sm md:text-base"
               >
                 <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -336,7 +296,7 @@ export default function PromotionManagement() {
                 <span>แก้ไขชื่อ</span>
               </button>
               <button
-                onClick={() => deleteCategory(categoryName)}
+                onClick={() => deleteCategory(category)}
                 className="bg-red-500 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-red-600 transition-colors shadow-md hover:shadow-lg flex items-center justify-center space-x-2 text-sm md:text-base"
               >
                 <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -350,22 +310,22 @@ export default function PromotionManagement() {
           {/* แสดงรูปภาพในหมวดหมู่ */}
           <div className="relative">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4">
-              {getCurrentPageItems(items, categoryName).map((item) => (
-                <div key={item.id} className="relative group">
+              {getCurrentPageItems(category.promotions, category.id).map((promotion) => (
+                <div key={promotion.id} className="relative group">
                   <div 
                     className="aspect-[4/5] bg-gray-200 rounded-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
-                    onClick={() => openImagePopup(item.image)}
+                    onClick={() => openImagePopup(promotion.image)}
                   >
                     <img
-                      src={item.image}
-                      alt={`${categoryName} ${item.id}`}
+                      src={promotion.image}
+                      alt={`${category.name} ${promotion.id}`}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      deleteImage(categoryName, item.id)
+                      deleteImage(category, promotion)
                     }}
                     className="absolute top-1 right-1 md:top-2 md:right-2 bg-red-500 text-white rounded-full w-5 h-5 md:w-6 md:h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10 text-xs md:text-sm"
                   >
@@ -375,7 +335,7 @@ export default function PromotionManagement() {
               ))}
               
               {/* แสดงข้อความเมื่อไม่มีรูปภาพ */}
-              {items.length === 0 && (
+              {category.promotions.length === 0 && (
                 <div className="col-span-full text-center py-6 md:py-8 text-gray-500 text-sm md:text-base">
                   ยังไม่มีรูปภาพในหมวดหมู่นี้
                 </div>
@@ -383,13 +343,13 @@ export default function PromotionManagement() {
             </div>
 
             {/* ปุ่มลูกศรและตัวบ่งชี้หน้า */}
-            {items.length > ITEMS_PER_PAGE && (
+            {category.promotions.length > ITEMS_PER_PAGE && (
               <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-3">
                 <button
-                  onClick={() => prevPage(categoryName)}
-                  disabled={(currentPage[categoryName] || 0) === 0}
+                  onClick={() => prevPage(category.id)}
+                  disabled={(currentPage[category.id] || 0) === 0}
                   className={`p-2 rounded-full shadow-md transition-all duration-200 order-1 sm:order-none ${
-                    (currentPage[categoryName] || 0) === 0
+                    (currentPage[category.id] || 0) === 0
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       : 'bg-white text-gray-700 hover:bg-gray-50 hover:shadow-lg'
                   }`}
@@ -401,15 +361,15 @@ export default function PromotionManagement() {
 
                 <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 order-3 sm:order-none">
                   <span className="text-xs md:text-sm text-gray-600">
-                    หน้า {(currentPage[categoryName] || 0) + 1} จาก {getTotalPages(items)}
+                    หน้า {(currentPage[category.id] || 0) + 1} จาก {getTotalPages(category.promotions)}
                   </span>
                   <div className="flex space-x-1">
-                    {Array.from({ length: getTotalPages(items) }, (_, index) => (
+                    {Array.from({ length: getTotalPages(category.promotions) }, (_, index) => (
                       <button
                         key={index}
-                        onClick={() => setCurrentPage(prev => ({ ...prev, [categoryName]: index }))}
+                        onClick={() => setCurrentPage(prev => ({ ...prev, [category.id]: index }))}
                         className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                          index === (currentPage[categoryName] || 0)
+                          index === (currentPage[category.id] || 0)
                             ? 'bg-blue-600'
                             : 'bg-gray-300 hover:bg-gray-400'
                         }`}
@@ -419,10 +379,10 @@ export default function PromotionManagement() {
                 </div>
 
                 <button
-                  onClick={() => nextPage(categoryName, getTotalPages(items))}
-                  disabled={(currentPage[categoryName] || 0) === getTotalPages(items) - 1}
+                  onClick={() => nextPage(category.id, getTotalPages(category.promotions))}
+                  disabled={(currentPage[category.id] || 0) === getTotalPages(category.promotions) - 1}
                   className={`p-2 rounded-full shadow-md transition-all duration-200 order-2 sm:order-none ${
-                    (currentPage[categoryName] || 0) === getTotalPages(items) - 1
+                    (currentPage[category.id] || 0) === getTotalPages(category.promotions) - 1
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       : 'bg-white text-gray-700 hover:bg-gray-50 hover:shadow-lg'
                   }`}
@@ -438,7 +398,7 @@ export default function PromotionManagement() {
       ))}
 
       {/* แสดงข้อความเมื่อไม่มีหมวดหมู่ */}
-      {Object.keys(promotionData).length === 0 && (
+      {categories.length === 0 && (
         <div className="text-center py-12 md:py-16 bg-white rounded-xl shadow-lg border border-gray-100">
           <div className="flex flex-col items-center space-y-4">
             <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-100 rounded-full flex items-center justify-center">

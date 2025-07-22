@@ -1,26 +1,58 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Header from '../../../layout/header/page'
 import FooterPage from '../../../layout/footer/page'
-import promotionData from '../../../data/promotion.json'
+import { promotionService, Category, Promotion } from '../../../lib/supabase-services'
 
 export default function CategoryPromotionPage() {
   const params = useParams()
   const router = useRouter()
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [category, setCategory] = useState<Category | null>(null)
+  const [promotions, setPromotions] = useState<Promotion[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   
-  const category = params.category as string
-  const categoryName = category.charAt(0).toUpperCase() + category.slice(1)
-  const cars = (promotionData as Record<string, Array<{ id: number; image: string }>>)[categoryName] || []
+  const categoryParam = params.category as string
 
-  const CarCard = ({ car }: { car: { id: number; image: string } }) => (
+  useEffect(() => {
+    const loadCategoryData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        const categories = await promotionService.getCategories()
+        const foundCategory = categories.find(cat => 
+          cat.name.toLowerCase() === categoryParam.toLowerCase()
+        )
+        
+        if (!foundCategory) {
+          setError('ไม่พบหมวดหมู่ที่ระบุ')
+          return
+        }
+        
+        setCategory(foundCategory)
+        const categoryPromotions = await promotionService.getPromotionsByCategory(foundCategory.id)
+        setPromotions(categoryPromotions)
+      } catch (error) {
+        console.error('Error loading category data:', error)
+        setError('เกิดข้อผิดพลาดในการโหลดข้อมูล')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadCategoryData()
+  }, [categoryParam])
+
+  const CarCard = ({ car }: { car: Promotion }) => (
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
       <div className="relative overflow-hidden rounded-md mb-4 cursor-pointer">
         <img 
           src={car.image} 
-          alt={`${categoryName} ${car.id}`}
+          alt={`${category?.name || 'โปรโมชัน'}`}
           className="w-full object-cover transition-transform duration-300 hover:scale-110"
           onClick={() => setSelectedImage(car.image)}
         />
@@ -37,6 +69,37 @@ export default function CategoryPromotionPage() {
     </div>
   )
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="text-center py-8">
+          <p className="text-lg text-gray-600">กำลังโหลดข้อมูล...</p>
+        </div>
+        <FooterPage />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="text-center py-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">เกิดข้อผิดพลาด</h1>
+          <p className="text-lg text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => router.push('/promotion')}
+            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors"
+          >
+            กลับไปหน้าโปรโมชัน
+          </button>
+        </div>
+        <FooterPage />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -44,20 +107,26 @@ export default function CategoryPromotionPage() {
       
       {/* Category Title */}
       <div className="text-center py-8">
-        <h1 className="text-3xl font-bold text-gray-800">โปรโมชั่น {categoryName}</h1>
+        <h1 className="text-3xl font-bold text-gray-800">โปรโมชั่น {category?.name || 'ไม่ทราบ'}</h1>
       </div>
       
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
-        {cars.length > 0 ? (
+        {promotions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {cars.map((car: { id: number; image: string }) => (
+            {promotions.map((car: Promotion) => (
               <CarCard key={car.id} car={car} />
             ))}
           </div>
         ) : (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">ไม่พบข้อมูลโปรโมชั่นในหมวดหมู่นี้</p>
+            <button
+              onClick={() => router.push('/promotion')}
+              className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors"
+            >
+              ดูโปรโมชันอื่น
+            </button>
           </div>
         )}
       </div>
