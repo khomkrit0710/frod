@@ -664,3 +664,83 @@ export const galleryService = {
     }
   }
 }
+
+// Types for Videos
+export interface Video {
+  id: number
+  youtube_url: string
+  created_at?: string
+  updated_at?: string
+}
+
+// Video Services
+export const videoService = {
+  // Get all videos
+  async getAll(): Promise<Video[]> {
+    const { data, error } = await supabase
+      .from('videos')
+      .select('*')
+      .order('id', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching videos:', error)
+      throw error
+    }
+
+    return data || []
+  },
+
+  // Create new video
+  async create(youtubeUrl: string): Promise<Video> {
+    const id = Date.now()
+    
+    const { data, error } = await supabase
+      .from('videos')
+      .insert([{
+        id,
+        youtube_url: youtubeUrl
+      }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating video:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Update video
+  async update(id: number, youtubeUrl: string): Promise<Video> {
+    const { data, error } = await supabase
+      .from('videos')
+      .update({
+        youtube_url: youtubeUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating video:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Delete video
+  async delete(id: number): Promise<void> {
+    const { error } = await supabase
+      .from('videos')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error deleting video:', error)
+      throw error
+    }
+  }
+}

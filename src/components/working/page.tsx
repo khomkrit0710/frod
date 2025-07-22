@@ -2,31 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import ScrollContainer from '../../layout/scroll/page'
-
-interface VideoItem {
-  id: number
-  url: string
-}
-
-interface VideoData {
-  videos: VideoItem[]
-}
+import { videoService, Video } from '@/lib/supabase-services'
 
 export default function WorkingPage() {
-  const [videoData, setVideoData] = useState<VideoData>({ videos: [] })
+  const [videos, setVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadVideoData()
+    loadVideos()
   }, [])
 
-  const loadVideoData = async () => {
+  const loadVideos = async () => {
     try {
-      const response = await fetch('/api/data/working')
-      const data = await response.json()
-      setVideoData(data)
+      setLoading(true)
+      const data = await videoService.getAll()
+      setVideos(data)
     } catch (error) {
-      console.error('Error loading video data:', error)
+      console.error('Error loading videos:', error)
     } finally {
       setLoading(false)
     }
@@ -61,7 +53,7 @@ export default function WorkingPage() {
         </div>
 
         <ScrollContainer>
-          {videoData.videos.map((video) => (
+          {videos.map((video) => (
             <div
               key={video.id}
               className="flex-shrink-0 w-64 minimal-card-xs"
@@ -69,7 +61,7 @@ export default function WorkingPage() {
               <div className="relative">
                 <div className="aspect-w-16 aspect-h-9 bg-blue-50 rounded-md overflow-hidden">
                   <iframe
-                    src={`https://www.youtube.com/embed/${extractYouTubeId(video.url)}`}
+                    src={`https://www.youtube.com/embed/${extractYouTubeId(video.youtube_url)}`}
                     title={`Video ${video.id}`}
                     frameBorder="0"
                     allowFullScreen
@@ -86,7 +78,7 @@ export default function WorkingPage() {
                 </p>
                 <div className="mt-2 flex items-center justify-between">
                   <button 
-                    onClick={() => openVideo(video.url)}
+                    onClick={() => openVideo(video.youtube_url)}
                     className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors duration-200"
                   >
                     ดูวิดีโอ
