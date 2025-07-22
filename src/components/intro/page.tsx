@@ -1,28 +1,71 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import introData from '../../data/intro.json'
+
+interface IntroSlide {
+  id: number
+  image: string
+}
+
+interface IntroData {
+  slides: IntroSlide[]
+}
 
 export default function IntroPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const { slides } = introData
+  const [introData, setIntroData] = useState<IntroData>({ slides: [] })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length)
-    }, 5000)
+    loadIntroData()
+  }, [])
 
-    return () => clearInterval(interval)
-  }, [slides.length])
+  const loadIntroData = async () => {
+    try {
+      const response = await fetch('/api/data/intro')
+      const data = await response.json()
+      setIntroData(data)
+    } catch (error) {
+      console.error('Error loading intro data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (introData.slides.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % introData.slides.length)
+      }, 5000)
+
+      return () => clearInterval(interval)
+    }
+  }, [introData.slides.length])
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index)
   }
 
+  if (loading) {
+    return (
+      <section id="intro" className="relative h-80 bg-white overflow-hidden flex items-center justify-center">
+        <div className="text-gray-500">กำลังโหลด...</div>
+      </section>
+    )
+  }
+
+  if (introData.slides.length === 0) {
+    return (
+      <section id="intro" className="relative h-80 bg-gray-100 overflow-hidden flex items-center justify-center">
+        <div className="text-gray-500">ไม่มีสไลด์แสดง</div>
+      </section>
+    )
+  }
+
   return (
     <section id="intro" className="relative h-80 bg-white overflow-hidden">
       <div className="relative h-full">
-        {slides.map((slide, index) => (
+        {introData.slides.map((slide, index) => (
           <div
             key={slide.id}
             className={`absolute inset-0 transition-opacity duration-500 ${
@@ -42,7 +85,7 @@ export default function IntroPage() {
 
       {/* Slide Indicators */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {slides.map((_, index) => (
+        {introData.slides.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
