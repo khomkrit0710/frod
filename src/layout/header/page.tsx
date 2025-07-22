@@ -23,7 +23,7 @@ export default function Page() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [imageData, setImageData] = useState<ImageData>({
-    logo: '/logo/logo2.png', // default fallback
+    logo: '/logo/logo2.png',
     footerLogo: '/image_test/logo.png',
     banner: '/logo/banner.jpg'
   })

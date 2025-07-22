@@ -1,26 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { unlink } from 'fs/promises'
-import path from 'path'
-import fs from 'fs'
+import { storageService } from '@/lib/supabase-services'
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { fileUrl } = await request.json()
+    const { fileUrl, filePath } = await request.json()
     
-    if (!fileUrl) {
+    if (!fileUrl && !filePath) {
       return NextResponse.json(
-        { error: 'ไม่พบ URL ไฟล์ที่ต้องการลบ' },
+        { error: 'ไม่พบ URL หรือ path ของไฟล์ที่ต้องการลบ' },
         { status: 400 }
       )
     }
 
-    // แปลง URL เป็น path ของไฟล์จริง
-    const filePath = path.join(process.cwd(), 'public', fileUrl)
+    // ถ้ามี filePath ให้ใช้, ถ้าไม่มีให้แปลงจาก fileUrl
+    let pathToDelete = filePath
     
-    // ตรวจสอบว่าไฟล์มีอยู่จริงหรือไม่
-    if (fs.existsSync(filePath)) {
-      // ลบไฟล์
-      await unlink(filePath)
+    if (!pathToDelete && fileUrl) {
+      // แปลง Supabase URL เป็น file path
+      // URL รูปแบบ: https://xxx.supabase.co/storage/v1/object/public/ford-images/logos/filename.jpg
+      const urlParts = fileUrl.split('/ford-images/')
+      if (urlParts.length > 1) {
+        pathToDelete = urlParts[1]
+      }
+    }
+
+    if (pathToDelete) {
+      // ลบไฟล์จาก Supabase Storage
+      await storageService.deleteFile(pathToDelete)
       
       return NextResponse.json({ 
         success: true, 
@@ -29,7 +35,7 @@ export async function DELETE(request: NextRequest) {
     } else {
       return NextResponse.json({ 
         success: true, 
-        message: 'ไฟล์ไม่พบ (อาจถูกลบไปแล้ว)' 
+        message: 'ไม่สามารถระบุ path ของไฟล์ได้' 
       })
     }
   } catch (error) {

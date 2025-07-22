@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-
-const filePath = path.join(process.cwd(), 'src', 'data', 'images.json')
+import { websiteImagesService } from '@/lib/supabase-services'
 
 export async function GET() {
   try {
-    const fileContents = fs.readFileSync(filePath, 'utf8')
-    const data = JSON.parse(fileContents)
+    const images = await websiteImagesService.getAll()
+    
+    // Transform to match the original JSON structure
+    const data: Record<string, string> = {}
+    
+    for (const image of images) {
+      data[image.image_type] = image.image_url
+    }
+    
     return NextResponse.json(data)
-  } catch (err) {
-    console.error('Error reading images data:', err)
+  } catch (error) {
+    console.error('Error reading images data:', error)
     return NextResponse.json(
       { error: 'ไม่สามารถอ่านข้อมูลรูปภาพได้' },
       { status: 500 }
@@ -22,12 +26,16 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
     
-    // เขียนข้อมูลลงไฟล์
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8')
+    // Update each image type
+    for (const [imageType, imageUrl] of Object.entries(data)) {
+      if (imageType === 'logo' || imageType === 'footerLogo') {
+        await websiteImagesService.update(imageType, imageUrl as string)
+      }
+    }
     
     return NextResponse.json({ success: true, message: 'บันทึกข้อมูลรูปภาพสำเร็จ' })
-  } catch (err) {
-    console.error('Error saving images data:', err)
+  } catch (error) {
+    console.error('Error saving images data:', error)
     return NextResponse.json(
       { success: false, message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูลรูปภาพ' },
       { status: 500 }

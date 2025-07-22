@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
-import fs from 'fs'
+import { storageService } from '@/lib/supabase-services'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,33 +21,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // สร้างชื่อไฟล์ใหม่
-    const timestamp = Date.now()
-    const extension = file.name.split('.').pop()
-    const filename = `logo_${timestamp}.${extension}`
-
-    // แปลงไฟล์เป็น bytes
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-
-    // เส้นทางสำหรับบันทึกไฟล์
-    const uploadDir = path.join(process.cwd(), 'public', 'logo')
-    const uploadPath = path.join(uploadDir, filename)
-    
-    // สร้างโฟลเดอร์ถ้าไม่มี
-    if (!fs.existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true })
+    // ตรวจสอบขนาดไฟล์ (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'ไฟล์ใหญ่เกินไป (สูงสุด 10MB)' },
+        { status: 400 }
+      )
     }
-    
-    // บันทึกไฟล์
-    await writeFile(uploadPath, buffer)
 
-    // ส่งกลับ URL ของไฟล์
-    const fileUrl = `/logo/${filename}`
+    // อัปโหลดไฟล์ไปยัง Supabase Storage
+    const { url, path } = await storageService.uploadFile(file, 'logos')
     
     return NextResponse.json({ 
       success: true, 
-      fileUrl,
+      fileUrl: url,
+      filePath: path,
       message: 'อัปโหลดไฟล์สำเร็จ' 
     })
   } catch (error) {

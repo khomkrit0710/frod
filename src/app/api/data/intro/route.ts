@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-
-const filePath = path.join(process.cwd(), 'src', 'data', 'intro.json')
+import { introSlidesService } from '@/lib/supabase-services'
 
 export async function GET() {
   try {
-    const fileContents = fs.readFileSync(filePath, 'utf8')
-    const data = JSON.parse(fileContents)
+    const slides = await introSlidesService.getAll()
+    
+    // Transform to match the original JSON structure
+    const data = {
+      slides: slides.map(slide => ({
+        id: slide.id,
+        image: slide.image_url
+      }))
+    }
+    
     return NextResponse.json(data)
-  } catch (err) {
-    console.error('Error reading intro data:', err)
+  } catch (error) {
+    console.error('Error reading intro data:', error)
     return NextResponse.json(
       { error: 'ไม่สามารถอ่านข้อมูลได้' },
       { status: 500 }
@@ -22,12 +27,25 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
     
-    // เขียนข้อมูลลงไฟล์
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8')
+    // Clear existing slides and insert new ones
+    // First, get all existing slides to delete them
+    const existingSlides = await introSlidesService.getAll()
+    
+    // Delete all existing slides
+    for (const slide of existingSlides) {
+      await introSlidesService.delete(slide.id)
+    }
+    
+    // Insert new slides
+    if (data.slides && Array.isArray(data.slides)) {
+      for (const slide of data.slides) {
+        await introSlidesService.create(slide.image)
+      }
+    }
     
     return NextResponse.json({ success: true, message: 'บันทึกข้อมูลสำเร็จ' })
-  } catch (err) {
-    console.error('Error saving intro data:', err)
+  } catch (error) {
+    console.error('Error saving intro data:', error)
     return NextResponse.json(
       { success: false, message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' },
       { status: 500 }
