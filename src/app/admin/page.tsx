@@ -8,7 +8,7 @@ import VideoManagement from '../../components/admin/VideoManagement'
 import GalleryManagement from '../../components/admin/GalleryManagement'
 import ContactManagement from '../../components/admin/ContactManagement'
 import CompanyManagement from '../../components/admin/CompanyManagement'
-import PasswordManagement from '../../components/admin/PasswordManagement'
+// import PasswordManagement from '../../components/admin/PasswordManagement'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('intro')
@@ -59,8 +59,8 @@ export default function AdminDashboard() {
     { id: 'video', name: 'จัดการวิดีโอ', icon: '📹' },
     { id: 'gallery', name: 'จัดการแกลเลอรี่', icon: '🎨' },
     { id: 'contact', name: 'จัดการ QR Code', icon: '📞' },
-    { id: 'company', name: 'จัดการข้อมูลบริษัท', icon: '🏢' },
-    { id: 'password', name: 'เปลี่ยนรหัสผ่าน', icon: '🔑' }
+    { id: 'company', name: 'จัดการข้อมูลบริษัท', icon: '🏢' }
+    // { id: 'password', name: 'เปลี่ยนรหัสผ่าน', icon: '🔑' }
   ]
 
   return (
@@ -171,7 +171,7 @@ export default function AdminDashboard() {
         {activeTab === 'gallery' && <GalleryManagement />}
         {activeTab === 'contact' && <ContactManagement />}
         {activeTab === 'company' && <CompanyManagement />}
-        {activeTab === 'password' && <PasswordManagement />}
+        {/* {activeTab === 'password' && <PasswordManagement />} */}
       </div>
     </div>
   )

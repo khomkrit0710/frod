@@ -673,6 +673,35 @@ export interface Video {
   updated_at?: string
 }
 
+// Company Types
+export interface CompanyInfo {
+  id: number
+  name: string
+  description: string
+  phone: string
+  email: string
+  address: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface WorkingHours {
+  id: number
+  weekdays: string
+  weekends: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface SocialMedia {
+  id: number
+  name: string
+  url: string
+  icon: string
+  created_at?: string
+  updated_at?: string
+}
+
 // Video Services
 export const videoService = {
   // Get all videos
@@ -740,6 +769,183 @@ export const videoService = {
 
     if (error) {
       console.error('Error deleting video:', error)
+      throw error
+    }
+  }
+}
+
+// Company Information Functions
+export const companyService = {
+  // Get company info
+  async getCompanyInfo(): Promise<CompanyInfo | null> {
+    const { data, error } = await supabase
+      .from('company_info')
+      .select('*')
+      .single()
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Error fetching company info:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Update company info
+  async updateCompanyInfo(companyInfo: Omit<CompanyInfo, 'id' | 'created_at' | 'updated_at'>): Promise<CompanyInfo> {
+    // First try to get existing record
+    const existing = await this.getCompanyInfo()
+    
+    if (existing) {
+      // Update existing record
+      const { data, error } = await supabase
+        .from('company_info')
+        .update({
+          ...companyInfo,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existing.id)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error updating company info:', error)
+        throw error
+      }
+
+      return data
+    } else {
+      // Create new record
+      const { data, error } = await supabase
+        .from('company_info')
+        .insert([companyInfo])
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error creating company info:', error)
+        throw error
+      }
+
+      return data
+    }
+  },
+
+  // Get working hours
+  async getWorkingHours(): Promise<WorkingHours | null> {
+    const { data, error } = await supabase
+      .from('working_hours')
+      .select('*')
+      .single()
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Error fetching working hours:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Update working hours
+  async updateWorkingHours(workingHours: Omit<WorkingHours, 'id' | 'created_at' | 'updated_at'>): Promise<WorkingHours> {
+    // First try to get existing record
+    const existing = await this.getWorkingHours()
+    
+    if (existing) {
+      // Update existing record
+      const { data, error } = await supabase
+        .from('working_hours')
+        .update({
+          ...workingHours,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existing.id)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error updating working hours:', error)
+        throw error
+      }
+
+      return data
+    } else {
+      // Create new record
+      const { data, error } = await supabase
+        .from('working_hours')
+        .insert([workingHours])
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error creating working hours:', error)
+        throw error
+      }
+
+      return data
+    }
+  },
+
+  // Get all social media
+  async getSocialMedia(): Promise<SocialMedia[]> {
+    const { data, error } = await supabase
+      .from('social_media')
+      .select('*')
+      .order('id', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching social media:', error)
+      throw error
+    }
+
+    return data || []
+  },
+
+  // Create social media
+  async createSocialMedia(socialMedia: Omit<SocialMedia, 'id' | 'created_at' | 'updated_at'>): Promise<SocialMedia> {
+    const { data, error } = await supabase
+      .from('social_media')
+      .insert([socialMedia])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating social media:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Update social media
+  async updateSocialMedia(id: number, socialMedia: Omit<SocialMedia, 'id' | 'created_at' | 'updated_at'>): Promise<SocialMedia> {
+    const { data, error } = await supabase
+      .from('social_media')
+      .update({
+        ...socialMedia,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating social media:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Delete social media
+  async deleteSocialMedia(id: number): Promise<void> {
+    const { error } = await supabase
+      .from('social_media')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error deleting social media:', error)
       throw error
     }
   }

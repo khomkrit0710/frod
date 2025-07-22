@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { companyService } from '@/lib/supabase-services'
 
 interface ImageData {
   logo: string
@@ -53,9 +54,32 @@ export default function FooterPage() {
 
   const loadCompanyData = async () => {
     try {
-      const response = await fetch('/api/data/company')
-      const data = await response.json()
-      setCompanyData(data)
+      // Load company info
+      const companyInfo = await companyService.getCompanyInfo()
+      const workingHours = await companyService.getWorkingHours()
+      const socialMedia = await companyService.getSocialMedia()
+
+      if (companyInfo && workingHours) {
+        setCompanyData({
+          companyInfo: {
+            name: companyInfo.name,
+            description: companyInfo.description,
+            phone: companyInfo.phone,
+            email: companyInfo.email,
+            address: companyInfo.address
+          },
+          workingHours: {
+            weekdays: workingHours.weekdays,
+            weekends: workingHours.weekends
+          },
+          socialMedia: socialMedia.map(social => ({
+            id: social.id,
+            name: social.name,
+            url: social.url,
+            icon: social.icon
+          }))
+        })
+      }
     } catch (error) {
       console.error('Error loading company data:', error)
     }
