@@ -554,3 +554,113 @@ export const contactService = {
     }
   }
 }
+
+// Types for Gallery
+export interface GalleryImage {
+  id: number
+  image_url: string
+  created_at?: string
+  updated_at?: string
+}
+
+// Gallery Services
+export const galleryService = {
+  // Get all gallery images
+  async getAll(): Promise<GalleryImage[]> {
+    const { data, error } = await supabase
+      .from('gallery_images')
+      .select('*')
+      .order('id', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching gallery images:', error)
+      throw error
+    }
+
+    return data || []
+  },
+
+  // Create new gallery image
+  async create(imageUrl: string): Promise<GalleryImage> {
+    const id = Date.now()
+    
+    const { data, error } = await supabase
+      .from('gallery_images')
+      .insert([{
+        id,
+        image_url: imageUrl
+      }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating gallery image:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Delete gallery image
+  async delete(id: number): Promise<void> {
+    const { error } = await supabase
+      .from('gallery_images')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error deleting gallery image:', error)
+      throw error
+    }
+  },
+
+  // Upload gallery image
+  async uploadImage(file: File): Promise<string> {
+    const fileName = `gallery_${Date.now()}.${file.name.split('.').pop()}`
+    const filePath = `gallery/${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('gallery')
+      .upload(filePath, file)
+
+    if (uploadError) {
+      console.error('Error uploading gallery image:', uploadError)
+      throw uploadError
+    }
+
+    const { data } = supabase.storage
+      .from('gallery')
+      .getPublicUrl(filePath)
+
+    return data.publicUrl
+  },
+
+  // Delete gallery image from storage
+  async deleteImage(imageUrl: string): Promise<void> {
+    try {
+      // Extract file path from URL
+      const url = new URL(imageUrl)
+      const pathParts = url.pathname.split('/')
+      const bucketIndex = pathParts.findIndex(part => part === 'gallery')
+      
+      if (bucketIndex === -1) {
+        console.warn('Invalid image URL format:', imageUrl)
+        return
+      }
+
+      const filePath = pathParts.slice(bucketIndex + 1).join('/')
+      
+      const { error } = await supabase.storage
+        .from('gallery')
+        .remove([filePath])
+
+      if (error) {
+        console.error('Error deleting gallery image:', error)
+        throw error
+      }
+    } catch (error) {
+      console.error('Error parsing image URL:', error)
+      // Don't throw error for URL parsing issues
+    }
+  }
+}

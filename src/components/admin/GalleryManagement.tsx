@@ -1,18 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-interface ImageItem {
-  id: number
-  url: string
-}
-
-interface ImageData {
-  images: ImageItem[]
-}
+import { galleryService, GalleryImage } from '@/lib/supabase-services'
 
 export default function GalleryManagement() {
-  const [imageData, setImageData] = useState<ImageData>({ images: [] })
+  const [images, setImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string>('')
@@ -22,37 +14,19 @@ export default function GalleryManagement() {
   const ITEMS_PER_PAGE = 6
 
   useEffect(() => {
-    loadImageData()
+    loadImages()
   }, [])
 
-  const loadImageData = async () => {
+  const loadImages = async () => {
     try {
-      const response = await fetch('/api/data/gallery')
-      const data = await response.json()
-      setImageData(data)
+      setLoading(true)
+      const data = await galleryService.getAll()
+      setImages(data)
     } catch (error) {
-      console.error('Error loading image data:', error)
+      console.error('Error loading images:', error)
+      alert('เกิดข้อผิดพลาดในการโหลดข้อมูล')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const saveImageData = async (data: ImageData) => {
-    try {
-      const response = await fetch('/api/data/gallery', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-      if (response.ok) {
-        await loadImageData()
-        alert('บันทึกข้อมูลสำเร็จ')
-      }
-    } catch (error) {
-      console.error('Error saving image data:', error)
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล')
     }
   }
 
@@ -62,64 +36,34 @@ export default function GalleryManagement() {
 
     setUploading(true)
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const response = await fetch('/api/upload/gallery', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        const newItem: ImageItem = {
-          id: Date.now(),
-          url: result.fileUrl
-        }
-
-        const updatedData = {
-          ...imageData,
-          images: [...imageData.images, newItem]
-        }
-
-        setImageData(updatedData)
-        await saveImageData(updatedData)
-        
-        // รีเซ็ต input
-        event.target.value = ''
-      } else {
-        alert('เกิดข้อผิดพลาดในการอัพโหลดไฟล์')
-      }
+      const imageUrl = await galleryService.uploadImage(file)
+      const newImage = await galleryService.create(imageUrl)
+      
+      setImages(prev => [newImage, ...prev])
+      alert('อัปโหลดรูปภาพสำเร็จ!')
+      
+      // รีเซ็ต input
+      event.target.value = ''
     } catch (error) {
       console.error('Error uploading file:', error)
-      alert('เกิดข้อผิดพลาดในการอัพโหลดไฟล์')
+      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์')
     } finally {
       setUploading(false)
     }
   }
 
-  const deleteItem = async (item: ImageItem) => {
+  const deleteItem = async (item: GalleryImage) => {
     if (confirm('คุณแน่ใจว่าต้องการลบรูปภาพนี้?')) {
       try {
-        // ลบไฟล์จากเซิร์ฟเวอร์
-        if (item.url && item.url.startsWith('/gallery/')) {
-          await fetch('/api/upload/gallery/delete', {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ fileUrl: item.url }),
-          })
-        }
-
-        // ลบจากข้อมูล
-        const updatedData = {
-          ...imageData,
-          images: imageData.images.filter(img => img.id !== item.id)
-        }
-
-        setImageData(updatedData)
-        await saveImageData(updatedData)
+        // ลบไฟล์จาก Storage
+        await galleryService.deleteImage(item.image_url)
+        
+        // ลบจากฐานข้อมูล
+        await galleryService.delete(item.id)
+        
+        // อัปเดต state
+        setImages(prev => prev.filter(img => img.id !== item.id))
+        alert('ลบรูปภาพสำเร็จ!')
       } catch (error) {
         console.error('Error deleting item:', error)
         alert('เกิดข้อผิดพลาดในการลบรูปภาพ')
@@ -138,9 +82,9 @@ export default function GalleryManagement() {
   }
 
   // Pagination
-  const totalPages = Math.ceil(imageData.images.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const currentImages = imageData.images.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  const currentImages = images.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   if (loading) {
     return <div className="p-6">กำลังโหลด...</div>
@@ -176,10 +120,10 @@ export default function GalleryManagement() {
           <div key={item.id} className="border rounded-lg p-4 bg-white shadow">
             <div className="mb-3">
               <img
-                src={item.url}
+                src={item.image_url}
                 alt={`รูปภาพ ${item.id}`}
                 className="w-full h-48 object-cover rounded cursor-pointer"
-                onClick={() => openImagePopup(item.url)}
+                onClick={() => openImagePopup(item.image_url)}
               />
             </div>
             
@@ -256,7 +200,7 @@ export default function GalleryManagement() {
 
       {/* Summary */}
       <div className="mt-6 text-center text-gray-600">
-        รวม {imageData.images.length} รูปภาพ
+        รวม {images.length} รูปภาพ
       </div>
     </div>
   )
