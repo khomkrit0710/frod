@@ -151,7 +151,7 @@ export const storageService = {
     const fileExt = file.name.split('.').pop()
     const fileName = `${folder}/${Date.now()}.${fileExt}`
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('ford-images')
       .upload(fileName, file)
 
