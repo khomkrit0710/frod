@@ -1,63 +1,31 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-interface Contact {
-  id: number
-  name: string
-  type: string
-  qrCode: string
-  description: string
-  url: string
-}
-
-interface ContactData {
-  contacts: Contact[]
-}
+import { contactService, Contact } from '@/lib/supabase-services'
 
 export default function ContactManagement() {
-  const [contactData, setContactData] = useState<ContactData>({ contacts: [] })
+  const [contacts, setContacts] = useState<Contact[]>([])
   const [isEditing, setIsEditing] = useState(false)
   const [editingContact, setEditingContact] = useState<Contact | null>(null)
   const [originalQrCode, setOriginalQrCode] = useState<string>('') // เก็บ QR code เดิม
   const [showForm, setShowForm] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadContactData()
+    loadContacts()
   }, [])
 
-  const loadContactData = async () => {
+  const loadContacts = async () => {
     try {
-      const response = await fetch('/api/data/contact')
-      const data = await response.json()
-      setContactData(data)
+      setLoading(true)
+      const data = await contactService.getAll()
+      setContacts(data)
     } catch (error) {
-      console.error('Error loading contact data:', error)
-    }
-  }
-
-  const saveContactData = async () => {
-    try {
-      const response = await fetch('/api/data/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(contactData),
-      })
-      
-      if (response.ok) {
-        alert('บันทึกข้อมูลสำเร็จ!')
-        setShowForm(false)
-        setIsEditing(false)
-        setEditingContact(null)
-      } else {
-        alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล')
-      }
-    } catch (error) {
-      console.error('Error saving contact data:', error)
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล')
+      console.error('Error loading contacts:', error)
+      alert('เกิดข้อผิดพลาดในการโหลดข้อมูล')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -66,7 +34,7 @@ export default function ContactManagement() {
       id: Date.now(),
       name: '',
       type: 'social',
-      qrCode: '',
+      qr_code: '',
       description: '',
       url: ''
     }
@@ -78,52 +46,73 @@ export default function ContactManagement() {
 
   const handleEditContact = (contact: Contact) => {
     setEditingContact({ ...contact })
-    setOriginalQrCode(contact.qrCode) // เก็บ QR code เดิม
+    setOriginalQrCode(contact.qr_code) // เก็บ QR code เดิม
     setIsEditing(true)
     setShowForm(true)
   }
 
   const handleDeleteContact = async (id: number) => {
     if (confirm('คุณต้องการลบข้อมูลนี้หรือไม่?')) {
-      // หาข้อมูล contact ที่จะลบ
-      const contactToDelete = contactData.contacts.find(contact => contact.id === id)
-      
-      // ลบไฟล์รูปภาพถ้ามี
-      if (contactToDelete?.qrCode && contactToDelete.qrCode.startsWith('/contact/')) {
-        try {
-          await fetch('/api/upload/contact/delete', {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ fileUrl: contactToDelete.qrCode }),
-          })
-        } catch (error) {
-          console.error('Error deleting file:', error)
+      try {
+        // หาข้อมูล contact ที่จะลบ
+        const contactToDelete = contacts.find(contact => contact.id === id)
+        
+        // ลบไฟล์รูปภาพถ้ามี
+        if (contactToDelete?.qr_code) {
+          try {
+            await contactService.deleteImage(contactToDelete.qr_code)
+          } catch (error) {
+            console.error('Error deleting image:', error)
+          }
         }
+        
+        await contactService.delete(id)
+        setContacts(contacts.filter(contact => contact.id !== id))
+        alert('ลบข้อมูลสำเร็จ!')
+      } catch (error) {
+        console.error('Error deleting contact:', error)
+        alert('เกิดข้อผิดพลาดในการลบข้อมูล')
       }
-      
-      const updatedContacts = contactData.contacts.filter(contact => contact.id !== id)
-      setContactData({ contacts: updatedContacts })
     }
   }
 
-  const handleSaveContact = () => {
+  const handleSaveContact = async () => {
     if (!editingContact) return
 
-    if (isEditing) {
-      const updatedContacts = contactData.contacts.map(contact =>
-        contact.id === editingContact.id ? editingContact : contact
-      )
-      setContactData({ contacts: updatedContacts })
-    } else {
-      setContactData({
-        contacts: [...contactData.contacts, editingContact]
-      })
+    try {
+      if (isEditing) {
+        const updatedContact = await contactService.update(editingContact.id, {
+          name: editingContact.name,
+          type: editingContact.type,
+          qr_code: editingContact.qr_code,
+          description: editingContact.description,
+          url: editingContact.url
+        })
+        
+        setContacts(contacts.map(contact =>
+          contact.id === editingContact.id ? updatedContact : contact
+        ))
+      } else {
+        const newContact = await contactService.create({
+          name: editingContact.name,
+          type: editingContact.type,
+          qr_code: editingContact.qr_code,
+          description: editingContact.description,
+          url: editingContact.url
+        })
+        
+        setContacts([...contacts, newContact])
+      }
+      
+      alert('บันทึกข้อมูลสำเร็จ!')
+      setShowForm(false)
+      setIsEditing(false)
+      setEditingContact(null)
+      setOriginalQrCode('')
+    } catch (error) {
+      console.error('Error saving contact:', error)
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล')
     }
-    saveContactData()
-    // รีเซ็ต state
-    setOriginalQrCode('')
   }
 
   const handleInputChange = (field: keyof Contact, value: string) => {
@@ -142,36 +131,17 @@ export default function ContactManagement() {
     setUploading(true)
     try {
       // ลบไฟล์เก่าก่อนอัปโหลดไฟล์ใหม่
-      if (editingContact?.qrCode && editingContact.qrCode.startsWith('/contact/')) {
+      if (editingContact?.qr_code) {
         try {
-          await fetch('/api/upload/contact/delete', {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ fileUrl: editingContact.qrCode }),
-          })
+          await contactService.deleteImage(editingContact.qr_code)
         } catch (error) {
           console.error('Error deleting old file:', error)
         }
       }
 
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const response = await fetch('/api/upload/contact', {
-        method: 'POST',
-        body: formData,
-      })
-
-      const result = await response.json()
-      
-      if (result.success) {
-        handleInputChange('qrCode', result.fileUrl)
-        alert('อัปโหลดรูปภาพสำเร็จ!')
-      } else {
-        alert(result.error || 'เกิดข้อผิดพลาดในการอัปโหลด')
-      }
+      const imageUrl = await contactService.uploadImage(file)
+      handleInputChange('qr_code', imageUrl)
+      alert('อัปโหลดรูปภาพสำเร็จ!')
     } catch (error) {
       console.error('Upload error:', error)
       alert('เกิดข้อผิดพลาดในการอัปโหลด')
@@ -192,43 +162,51 @@ export default function ContactManagement() {
         </button>
       </div>
 
-      {/* Contact List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        {contactData.contacts.map((contact) => (
-          <div key={contact.id} className="bg-white p-4 rounded-lg shadow border">
-            <div className="text-center">
-              <img 
-                src={contact.qrCode} 
-                alt={contact.name}
-                className="w-32 h-32 object-cover mx-auto mb-3 rounded"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/placeholder-qr.png'
-                }}
-              />
-              <h3 className="font-semibold text-lg">{contact.name}</h3>
-              <p className="text-gray-600 text-sm mb-2">{contact.description}</p>
-              <p className="text-blue-600 text-sm mb-2 break-all">{contact.url}</p>
-              <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-3">
-                {contact.type}
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEditContact(contact)}
-                  className="flex-1 bg-yellow-500 text-white py-1 px-3 rounded text-sm hover:bg-yellow-600"
-                >
-                  แก้ไข
-                </button>
-                <button
-                  onClick={() => handleDeleteContact(contact.id)}
-                  className="flex-1 bg-red-500 text-white py-1 px-3 rounded text-sm hover:bg-red-600"
-                >
-                  ลบ
-                </button>
+      {loading ? (
+        <div className="text-center py-8">
+          <div className="text-gray-600">กำลังโหลดข้อมูล...</div>
+        </div>
+      ) : (
+        <>
+          {/* Contact List */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            {contacts.map((contact) => (
+              <div key={contact.id} className="bg-white p-4 rounded-lg shadow border">
+                <div className="text-center">
+                  <img 
+                    src={contact.qr_code} 
+                    alt={contact.name}
+                    className="w-32 h-32 object-cover mx-auto mb-3 rounded"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder-qr.png'
+                    }}
+                  />
+                  <h3 className="font-semibold text-lg">{contact.name}</h3>
+                  <p className="text-gray-600 text-sm mb-2">{contact.description}</p>
+                  <p className="text-blue-600 text-sm mb-2 break-all">{contact.url}</p>
+                  <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-3">
+                    {contact.type}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEditContact(contact)}
+                      className="flex-1 bg-yellow-500 text-white py-1 px-3 rounded text-sm hover:bg-yellow-600"
+                    >
+                      แก้ไข
+                    </button>
+                    <button
+                      onClick={() => handleDeleteContact(contact.id)}
+                      className="flex-1 bg-red-500 text-white py-1 px-3 rounded text-sm hover:bg-red-600"
+                    >
+                      ลบ
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
 
       {/* Contact Form Modal */}
       {showForm && editingContact && (
@@ -271,10 +249,10 @@ export default function ContactManagement() {
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      value={editingContact.qrCode}
-                      onChange={(e) => handleInputChange('qrCode', e.target.value)}
+                      value={editingContact.qr_code}
+                      onChange={(e) => handleInputChange('qr_code', e.target.value)}
                       className="flex-1 p-2 border rounded"
-                      placeholder="/contact/facebook.jpg"
+                      placeholder="URL รูปภาพ QR Code"
                     />
                     <label className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer">
                       {uploading ? 'กำลังอัปโหลด...' : 'อัปโหลด'}
@@ -287,9 +265,9 @@ export default function ContactManagement() {
                       />
                     </label>
                   </div>
-                  {editingContact.qrCode && (
+                  {editingContact.qr_code && (
                     <img 
-                      src={editingContact.qrCode} 
+                      src={editingContact.qr_code} 
                       alt="Preview"
                       className="mt-2 w-32 h-32 object-cover rounded border mx-auto"
                       onError={(e) => {
@@ -337,29 +315,17 @@ export default function ContactManagement() {
               <button
                 onClick={async () => {
                   // ถ้าไม่ใช่การแก้ไขและมีการอัปโหลดไฟล์ใหม่ ให้ลบไฟล์ที่อัปโหลด
-                  if (!isEditing && editingContact?.qrCode && editingContact.qrCode.startsWith('/contact/')) {
+                  if (!isEditing && editingContact?.qr_code && editingContact.qr_code !== originalQrCode) {
                     try {
-                      await fetch('/api/upload/contact/delete', {
-                        method: 'DELETE',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ fileUrl: editingContact.qrCode }),
-                      })
+                      await contactService.deleteImage(editingContact.qr_code)
                     } catch (error) {
                       console.error('Error deleting uploaded file:', error)
                     }
                   }
-                  // ถ้าเป็นการแก้ไขและมีการเปลี่ยน QR code ให้ลบไฟล์ใหม่และคืนค่าเดิม
-                  else if (isEditing && editingContact?.qrCode !== originalQrCode && editingContact?.qrCode.startsWith('/contact/')) {
+                  // ถ้าเป็นการแก้ไขและมีการเปลี่ยน QR code ให้ลบไฟล์ใหม่
+                  else if (isEditing && editingContact?.qr_code !== originalQrCode && editingContact?.qr_code) {
                     try {
-                      await fetch('/api/upload/contact/delete', {
-                        method: 'DELETE',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ fileUrl: editingContact.qrCode }),
-                      })
+                      await contactService.deleteImage(editingContact.qr_code)
                     } catch (error) {
                       console.error('Error deleting new uploaded file:', error)
                     }

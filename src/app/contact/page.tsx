@@ -5,16 +5,7 @@ import Header from '../../layout/header/page'
 import FooterPage from '../../layout/footer/page'
 import introData from '../../data/intro.json'
 import MapPage from '../../layout/map/page'
-interface ContactData {
-  contacts: Array<{
-    id: number
-    name: string
-    type: string
-    qrCode: string
-    description: string
-    url: string
-  }>
-}
+import { contactService, Contact } from '@/lib/supabase-services'
 
 interface CompanyData {
   companyInfo: {
@@ -37,10 +28,11 @@ interface CompanyData {
 }
 
 export default function ContactPage() {
-  const [contactData, setContactData] = useState<ContactData>({ contacts: [] })
+  const [contacts, setContacts] = useState<Contact[]>([])
   const [companyData, setCompanyData] = useState<CompanyData | null>(null)
   const [selectedQR, setSelectedQR] = useState<string | null>(null)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [loading, setLoading] = useState(true)
   const { slides } = introData
 
   useEffect(() => {
@@ -62,11 +54,13 @@ export default function ContactPage() {
 
   const loadContactData = async () => {
     try {
-      const response = await fetch('/api/data/contact')
-      const data = await response.json()
-      setContactData(data)
+      setLoading(true)
+      const data = await contactService.getAll()
+      setContacts(data)
     } catch (error) {
       console.error('Error loading contact data:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -80,17 +74,17 @@ export default function ContactPage() {
     }
   }
 
-  const ContactCard = ({ contact }: { contact: { id: number; name: string; type: string; qrCode: string; description: string; url: string } }) => (
+  const ContactCard = ({ contact }: { contact: Contact }) => (
     <div className="bg-white rounded-lg shadow-md p-4 md:p-6 hover:shadow-lg transition-shadow">
       <div className="text-center">
         <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-2">{contact.name}</h3>
         <p className="text-sm md:text-base text-gray-600 mb-4">{contact.description}</p>
         <div 
           className="relative overflow-hidden rounded-lg mb-4 cursor-pointer inline-block"
-          onClick={() => setSelectedQR(contact.qrCode)}
+          onClick={() => setSelectedQR(contact.qr_code)}
         >
           <img 
-            src={contact.qrCode}
+            src={contact.qr_code}
             alt={`${contact.name} QR Code`}
             className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 object-cover mx-auto transition-transform duration-300 hover:scale-105"
           />
@@ -224,9 +218,13 @@ export default function ContactPage() {
           <p className="text-sm md:text-base text-gray-600">สแกน QR Code หรือคลิ๊กปุ่มเพื่อติดต่อกับเราผ่านช่องทางต่าง ๆ</p>
         </div>
 
-        {contactData.contacts.length > 0 ? (
+        {loading ? (
+          <div className="text-center py-8 md:py-12">
+            <p className="text-gray-500 text-base md:text-lg">กำลังโหลดข้อมูล...</p>
+          </div>
+        ) : contacts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {contactData.contacts.map((contact) => (
+            {contacts.map((contact) => (
               <ContactCard key={contact.id} contact={contact} />
             ))}
           </div>

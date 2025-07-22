@@ -420,3 +420,137 @@ export const promotionService = {
     }
   }
 }
+
+// Types for Contacts
+export interface Contact {
+  id: number
+  name: string
+  type: string
+  qr_code: string
+  description: string
+  url: string
+  created_at?: string
+  updated_at?: string
+}
+
+// Contact Services
+export const contactService = {
+  // Get all contacts
+  async getAll(): Promise<Contact[]> {
+    const { data, error } = await supabase
+      .from('contacts')
+      .select('*')
+      .order('id', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching contacts:', error)
+      throw error
+    }
+
+    return data || []
+  },
+
+  // Create new contact
+  async create(contact: Omit<Contact, 'id' | 'created_at' | 'updated_at'>): Promise<Contact> {
+    const id = Date.now()
+    
+    const { data, error } = await supabase
+      .from('contacts')
+      .insert([{
+        id,
+        ...contact
+      }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating contact:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Update contact
+  async update(id: number, contact: Partial<Omit<Contact, 'id' | 'created_at' | 'updated_at'>>): Promise<Contact> {
+    const { data, error } = await supabase
+      .from('contacts')
+      .update({
+        ...contact,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating contact:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Delete contact
+  async delete(id: number): Promise<void> {
+    const { error } = await supabase
+      .from('contacts')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error deleting contact:', error)
+      throw error
+    }
+  },
+
+  // Upload contact image
+  async uploadImage(file: File): Promise<string> {
+    const fileName = `contact_${Date.now()}.${file.name.split('.').pop()}`
+    const filePath = `contacts/${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('contacts')
+      .upload(filePath, file)
+
+    if (uploadError) {
+      console.error('Error uploading contact image:', uploadError)
+      throw uploadError
+    }
+
+    const { data } = supabase.storage
+      .from('contacts')
+      .getPublicUrl(filePath)
+
+    return data.publicUrl
+  },
+
+  // Delete contact image
+  async deleteImage(imageUrl: string): Promise<void> {
+    try {
+      // Extract file path from URL
+      const url = new URL(imageUrl)
+      const pathParts = url.pathname.split('/')
+      const bucketIndex = pathParts.findIndex(part => part === 'contacts')
+      
+      if (bucketIndex === -1) {
+        console.warn('Invalid image URL format:', imageUrl)
+        return
+      }
+
+      const filePath = pathParts.slice(bucketIndex + 1).join('/')
+      
+      const { error } = await supabase.storage
+        .from('contacts')
+        .remove([filePath])
+
+      if (error) {
+        console.error('Error deleting contact image:', error)
+        throw error
+      }
+    } catch (error) {
+      console.error('Error parsing image URL:', error)
+      // Don't throw error for URL parsing issues
+    }
+  }
+}
