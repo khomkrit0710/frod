@@ -120,22 +120,42 @@ export default function PromotionPage() {
                           }}
                         />
                       </div>
-                      <div className="text-center mt-2">
-                        <h3 className="text-base md:text-lg font-medium text-gray-800">
-                          {currentMainImage ? `รูปที่ ${currentMainImage.id}` : 'ยังไม่มีรูปภาพในขณะนี้'}
-                        </h3>
-                      </div>
                     </div>
                     
                     {/* การ์ดรูปเล็กด้านล่าง */}
                     <div className="mb-4">
-                      <ScrollContainer className="max-h-[40vh] overflow-y-auto">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {cars.map((car: Promotion) => (
-                            <CarCard key={car.id} car={car} categoryName={category.name} />
-                          ))}
-                        </div>
-                      </ScrollContainer>
+                      {/* Extra Small Mobile: แนวนอนเลื่อนได้ */}
+                      <div className="block sm:hidden">
+                        <ScrollContainer className="max-h-[35vh] overflow-x-auto overflow-y-hidden">
+                          <div className="flex gap-2 pb-2">
+                            {cars.map((car: Promotion) => (
+                              <CarCard key={car.id} car={car} categoryName={category.name} />
+                            ))}
+                          </div>
+                        </ScrollContainer>
+                      </div>
+                      
+                      {/* Small Mobile: แนวนอนเลื่อนได้ */}
+                      <div className="hidden sm:block md:hidden">
+                        <ScrollContainer className="max-h-[40vh] overflow-x-auto overflow-y-hidden">
+                          <div className="flex gap-3 pb-2">
+                            {cars.map((car: Promotion) => (
+                              <CarCard key={car.id} car={car} categoryName={category.name} />
+                            ))}
+                          </div>
+                        </ScrollContainer>
+                      </div>
+                      
+                      {/* Tablet: แนวนอนเลื่อนได้ */}
+                      <div className="hidden md:block">
+                        <ScrollContainer className="max-h-[40vh] overflow-x-auto overflow-y-hidden">
+                          <div className="flex gap-3 pb-2">
+                            {cars.map((car: Promotion) => (
+                              <CarCard key={car.id} car={car} categoryName={category.name} />
+                            ))}
+                          </div>
+                        </ScrollContainer>
+                      </div>
                     </div>
                   </div>
 

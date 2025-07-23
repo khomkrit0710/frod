@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import IntroManagement from '../../components/admin/IntroManagement'
+import ProductManagement from '../../components/admin/ProductManagement'
 import PromotionManagement from '../../components/admin/PromotionManagement'
 import VideoManagement from '../../components/admin/VideoManagement'
 import GalleryManagement from '../../components/admin/GalleryManagement'
@@ -55,6 +56,7 @@ export default function AdminDashboard() {
 
   const tabs = [
     { id: 'intro', name: 'จัดการแบนเนอร์/สไลด์ & โลโก้', icon: '🖼️' },
+    { id: 'product', name: 'จัดการสินค้า', icon: '📦' },
     { id: 'promotion', name: 'จัดการโปรโมชัน', icon: '🚗' },
     { id: 'video', name: 'จัดการวิดีโอ', icon: '📹' },
     { id: 'gallery', name: 'จัดการแกลเลอรี่', icon: '🎨' },
@@ -166,6 +168,7 @@ export default function AdminDashboard() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         {activeTab === 'intro' && <IntroManagement />}
+        {activeTab === 'product' && <ProductManagement />}
         {activeTab === 'promotion' && <PromotionManagement />}
         {activeTab === 'video' && <VideoManagement />}
         {activeTab === 'gallery' && <GalleryManagement />}

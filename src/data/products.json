@@ -1,0 +1,76 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "ชุดแต่ง Ford Ranger Raptor",
+      "price": "89,900",
+      "originalPrice": "99,900",
+      "discount": "10,000",
+      "warranty": "1 ปี",
+      "colors": ["ดำ", "เงิน", "คาร์บอน"],
+      "description": "ชุดแต่งรอบคันสำหรับ Ford Ranger Raptor",
+      "features": ["กันชนหน้า-หลัง", "ชุดกรอบล้อ", "สปอยเลอร์"],
+      "image": "/image_test/logo.png"
+    },
+    {
+      "id": 2,
+      "name": "ระบบไฟ LED รอบคัน",
+      "price": "25,900",
+      "originalPrice": "29,900",
+      "discount": "4,000",
+      "warranty": "2 ปี",
+      "colors": ["ขาว", "เหลือง", "น้ำเงิน"],
+      "description": "ระบบไฟ LED แบบครบชุด",
+      "features": ["ไฟหน้า LED", "ไฟเลี้ยว LED", "ไฟท้าย LED"],
+      "image": "/image_test/logo.png"
+    },
+    {
+      "id": 3,
+      "name": "ล้อแม็กอัลลอย 18 นิ้ว",
+      "price": "45,900",
+      "originalPrice": "52,900",
+      "discount": "7,000",
+      "warranty": "1 ปี",
+      "colors": ["ดำ", "เงิน", "ทอง"],
+      "description": "ล้อแม็กอัลลอยสำหรับ Ford Ranger",
+      "features": ["วัสดุอัลลอย", "ขนาด 18 นิ้ว", "น้ำหนักเบา"],
+      "image": "/image_test/logo.png"
+    },
+    {
+      "id": 4,
+      "name": "เบาะหนังแท้ครบชุด",
+      "price": "79,900",
+      "originalPrice": "89,900",
+      "discount": "10,000",
+      "warranty": "2 ปี",
+      "colors": ["ดำ", "น้ำตาล", "ครีม"],
+      "description": "เบาะหนังแท้คุณภาพสูง",
+      "features": ["หนังแท้ 100%", "ระบบปรับไฟฟ้า", "ระบบผลิตลมร้อน-เย็น"],
+      "image": "/image_test/logo.png"
+    },
+    {
+      "id": 5,
+      "name": "ชุดกันสาด Ford Everest",
+      "price": "15,900",
+      "originalPrice": "18,900",
+      "discount": "3,000",
+      "warranty": "1 ปี",
+      "colors": ["ใส", "ดำ", "น้ำเงิน"],
+      "description": "ชุดกันสาดรอบคันสำหรับ Ford Everest",
+      "features": ["วัสดุอคริลิค", "ระบบยึดแน่น", "ป้องกันฝนและแดด"],
+      "image": "/image_test/logo.png"
+    },
+    {
+      "id": 6,
+      "name": "ระบบเสียง Premium",
+      "price": "69,900",
+      "originalPrice": "79,900",
+      "discount": "10,000",
+      "warranty": "2 ปี",
+      "colors": ["ดำ"],
+      "description": "ระบบเสียงคุณภาพสูง",
+      "features": ["ลำโพง 12 ตัว", "เครื่องขยายเสียง", "ซับวูฟเฟอร์"],
+      "image": "/image_test/logo.png"
+    }
+  ]
+}

@@ -56,16 +56,16 @@ export default function WorkingPage() {
           {videos.map((video) => (
             <div
               key={video.id}
-              className="flex-shrink-0 w-64 minimal-card-xs"
+              className="flex-shrink-0 w-72 sm:w-80 md:w-72 minimal-card-xs"
             >
               <div className="relative">
-                <div className="aspect-w-16 aspect-h-9 bg-blue-50 rounded-md overflow-hidden">
+                <div className="w-full bg-blue-50 rounded-md overflow-hidden" style={{ aspectRatio: '16/9' }}>
                   <iframe
                     src={`https://www.youtube.com/embed/${extractYouTubeId(video.youtube_url)}`}
                     title={`Video ${video.id}`}
                     frameBorder="0"
                     allowFullScreen
-                    className="w-full h-56 object-cover"
+                    className="w-full h-full"
                   />
                 </div>
                 <div className="absolute top-1 right-1 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs">

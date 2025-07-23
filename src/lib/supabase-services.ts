@@ -433,6 +433,22 @@ export interface Contact {
   updated_at?: string
 }
 
+// Types for Products
+export interface Product {
+  id: number
+  name: string
+  price: string
+  original_price: string
+  discount: string
+  warranty: string
+  colors: string[]
+  description: string
+  features: string[]
+  image: string
+  created_at?: string
+  updated_at?: string
+}
+
 // Contact Services
 export const contactService = {
   // Get all contacts
@@ -946,6 +962,132 @@ export const companyService = {
 
     if (error) {
       console.error('Error deleting social media:', error)
+      throw error
+    }
+  }
+}
+
+// Product Services
+export const productService = {
+  // Get all products
+  async getAll(): Promise<Product[]> {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('id', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching products:', error)
+      throw error
+    }
+
+    return data || []
+  },
+
+  // Create new product  
+  async create(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product> {
+    const { data, error } = await supabase
+      .from('products')
+      .insert([{
+        name: product.name,
+        price: product.price,
+        original_price: product.original_price,
+        discount: product.discount,
+        warranty: product.warranty,
+        colors: product.colors,
+        description: product.description,
+        features: product.features,
+        image: product.image
+      }])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating product:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Update product
+  async update(id: number, product: Partial<Omit<Product, 'id' | 'created_at' | 'updated_at'>>): Promise<Product> {
+    const { data, error } = await supabase
+      .from('products')
+      .update({
+        name: product.name,
+        price: product.price,
+        original_price: product.original_price,
+        discount: product.discount,
+        warranty: product.warranty,
+        colors: product.colors,
+        description: product.description,
+        features: product.features,
+        image: product.image
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating product:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Delete product
+  async delete(id: number): Promise<void> {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error deleting product:', error)
+      throw error
+    }
+  },
+
+  // Upload product image
+  async uploadImage(file: File): Promise<string> {
+    const fileExt = file.name.split('.').pop()
+    const fileName = `product_${Date.now()}.${fileExt}`
+    const filePath = `${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('products')
+      .upload(filePath, file)
+
+    if (uploadError) {
+      console.error('Error uploading image:', uploadError)
+      throw uploadError
+    }
+
+    const { data } = supabase.storage
+      .from('products')
+      .getPublicUrl(filePath)
+
+    return data.publicUrl
+  },
+
+  // Delete product image
+  async deleteImage(imageUrl: string): Promise<void> {
+    try {
+      const url = new URL(imageUrl)
+      const fileName = url.pathname.split('/').pop()
+      
+      const { error } = await supabase.storage
+        .from('products')
+        .remove([fileName!])
+
+      if (error) {
+        console.error('Error deleting image:', error)
+        throw error
+      }
+    } catch (error) {
+      console.error('Error parsing image URL:', error)
       throw error
     }
   }

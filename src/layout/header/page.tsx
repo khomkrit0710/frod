@@ -3,18 +3,12 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { promotionService, Category } from '../../lib/supabase-services'
 
 interface ImageData {
   logo: string
   footerLogo: string
   banner: string
-}
-
-interface PromotionData {
-  [key: string]: Array<{
-    id: number
-    image: string
-  }>
 }
 
 export default function Page() {
@@ -27,7 +21,7 @@ export default function Page() {
     footerLogo: '/image_test/logo.png',
     banner: '/logo/banner.jpg'
   })
-  const [promotionCategories, setPromotionCategories] = useState<string[]>([])
+  const [promotionCategories, setPromotionCategories] = useState<Category[]>([])
 
   useEffect(() => {
     loadImageData()
@@ -46,9 +40,7 @@ export default function Page() {
 
   const loadPromotionCategories = async () => {
     try {
-      const response = await fetch('/api/data/promotion')
-      const data: PromotionData = await response.json()
-      const categories = Object.keys(data)
+      const categories = await promotionService.getCategories()
       setPromotionCategories(categories)
     } catch (error) {
       console.error('Error loading promotion categories:', error)
@@ -69,8 +61,8 @@ export default function Page() {
     }
   }
 
-  const handlePromotionCategory = (category: string) => {
-    const sectionId = `promotion-${category.toLowerCase()}`
+  const handlePromotionCategory = (categoryName: string) => {
+    const sectionId = `promotion-${categoryName.toLowerCase()}`
     
     // ถ้าไม่ได้อยู่ในหน้าหลัก ให้กลับไปหน้าหลักพร้อมกับ scroll
     if (pathname !== '/') {
@@ -139,11 +131,11 @@ export default function Page() {
                 <div className="absolute top-full left-0 mt-1 w-32 bg-white rounded-md shadow-lg border border-blue-100 overflow-hidden">
                   {promotionCategories.map((category) => (
                     <button 
-                      key={category}
-                      onClick={() => handlePromotionCategory(category)}
+                      key={category.id}
+                      onClick={() => handlePromotionCategory(category.name)}
                       className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
                     >
-                      {category}
+                      {category.name}
                     </button>
                   ))}
                 </div>
@@ -209,11 +201,11 @@ export default function Page() {
                 <div className="ml-4 mt-1 space-y-1">
                   {promotionCategories.map((category) => (
                     <button 
-                      key={category}
-                      onClick={() => handlePromotionCategory(category)}
+                      key={category.id}
+                      onClick={() => handlePromotionCategory(category.name)}
                       className="block w-full text-left px-3 py-2 text-sm text-white hover:bg-blue-700 rounded-md transition-colors duration-200"
                     >
-                      {category}
+                      {category.name}
                     </button>
                   ))}
                 </div>

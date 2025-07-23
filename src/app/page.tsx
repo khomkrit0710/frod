@@ -10,6 +10,7 @@ import PromotionPage from '../components/promotion/page'
 import GalleryPage from '../components/gallery/page'
 import FooterPage from '../layout/footer/page'
 import MapPage from '../layout/map/page'
+import ProductPage from '@/components/product/page'
 
 function HomeContent() {
   const searchParams = useSearchParams()
@@ -32,9 +33,10 @@ function HomeContent() {
     <div className="min-h-screen">
       <Header />
       <IntroPage />
-      <div className='mx-10'>
+      <div className=''>
         <WorkingPage />
         <PromotionPage />
+        <ProductPage />
         <GalleryPage />
         <MapPage />
       </div>
