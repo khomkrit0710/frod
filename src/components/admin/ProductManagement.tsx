@@ -7,7 +7,6 @@ export default function ProductManagement() {
   const [products, setProducts] = useState<Product[]>([])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [showForm, setShowForm] = useState(false)
-  const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>('')
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -158,7 +157,6 @@ export default function ProductManagement() {
       features: [],
       image: ''
     })
-    setImageFile(null)
     setImagePreview('')
     setOriginalImage('')
     setShowForm(false)
