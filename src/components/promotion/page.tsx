@@ -69,7 +69,12 @@ export default function PromotionPage() {
   }
   
   const CarCard = ({ car, categoryName }: { car: Promotion, categoryName: string }) => (
-    <div className="minimal-card p-2 md:p-3 flex-shrink-0">
+    <div className="minimal-card p-2 md:p-3" style={{ 
+      minWidth: 'auto', 
+      maxWidth: 'auto',
+      flexShrink: 0,
+      flexGrow: 0
+    }}>
       <div className="relative overflow-hidden rounded-md mb-2 md:mb-3 cursor-pointer">
         <img 
           src={car.image} 
@@ -172,27 +177,19 @@ export default function PromotionPage() {
                     <div className="mb-4">
                       {/* Mobile (All iPhone sizes): แนวนอนเลื่อนได้ */}
                       <div className="block md:hidden">
-                        <ScrollContainer className="max-h-[35vh] sm:max-h-[40vh] overflow-x-auto overflow-y-hidden">
-                          <div className="flex gap-2 sm:gap-3 pb-2" style={{ minWidth: 'max-content' }}>
-                            {cars.map((car: Promotion) => (
-                              <div key={car.id} style={{ minWidth: '120px', flexShrink: 0 }}>
-                                <CarCard car={car} categoryName={category.name} />
-                              </div>
-                            ))}
-                          </div>
+                        <ScrollContainer className="max-h-[35vh] sm:max-h-[40vh]">
+                          {cars.map((car: Promotion) => (
+                            <CarCard key={car.id} car={car} categoryName={category.name} />
+                          ))}
                         </ScrollContainer>
                       </div>
                       
                       {/* Tablet and Desktop: แนวนอนเลื่อนได้ */}
                       <div className="hidden md:block">
-                        <ScrollContainer className="max-h-[40vh] lg:max-h-[45vh] overflow-x-auto overflow-y-hidden">
-                          <div className="flex gap-3 lg:gap-4 pb-2" style={{ minWidth: 'max-content' }}>
-                            {cars.map((car: Promotion) => (
-                              <div key={car.id} style={{ minWidth: '140px', flexShrink: 0 }}>
-                                <CarCard car={car} categoryName={category.name} />
-                              </div>
-                            ))}
-                          </div>
+                        <ScrollContainer className="max-h-[40vh] lg:max-h-[45vh]">
+                          {cars.map((car: Promotion) => (
+                            <CarCard key={car.id} car={car} categoryName={category.name} />
+                          ))}
                         </ScrollContainer>
                       </div>
                     </div>
