@@ -105,15 +105,15 @@ export default function PromotionPage() {
                 </div>
               ) : (
                 <>
-                  {/* Mobile and Tablet Layout (Stack vertically) */}
-                  <div className="block lg:hidden">
+                  {/* Mobile, Tablet, Desktop Layout (Stack vertically) */}
+                  <div className="block xl:hidden">
                     {/* รูปใหญ่ด้านบน */}
                     <div className="mb-4">
                       <div className="relative overflow-hidden rounded-md cursor-pointer flex justify-center">
                         <img 
                           src={currentMainImage?.image || '/placeholder.jpg'}
                           alt={`${category.name} รูปที่ ${currentMainImage?.id || 'ไม่มี'}`}
-                          className="max-w-full max-h-[50vh] w-auto h-auto object-contain transition-transform duration-300 hover:scale-105"
+                          className="max-w-full max-h-[50vh] lg:max-h-[60vh] w-auto h-auto object-contain transition-transform duration-300 hover:scale-105"
                           onClick={() => currentMainImage?.image && setSelectedImage(currentMainImage.image)}
                           onError={(e) => {
                             e.currentTarget.src = '/placeholder.jpg';
@@ -146,10 +146,10 @@ export default function PromotionPage() {
                         </ScrollContainer>
                       </div>
                       
-                      {/* Tablet: แนวนอนเลื่อนได้ */}
+                      {/* Tablet and Desktop: แนวนอนเลื่อนได้ */}
                       <div className="hidden md:block">
-                        <ScrollContainer className="max-h-[40vh] overflow-x-auto overflow-y-hidden">
-                          <div className="flex gap-3 pb-2">
+                        <ScrollContainer className="max-h-[40vh] lg:max-h-[45vh] overflow-x-auto overflow-y-hidden">
+                          <div className="flex gap-3 lg:gap-4 pb-2">
                             {cars.map((car: Promotion) => (
                               <CarCard key={car.id} car={car} categoryName={category.name} />
                             ))}
@@ -159,8 +159,8 @@ export default function PromotionPage() {
                     </div>
                   </div>
 
-                  {/* Desktop Layout (Side by side) */}
-                  <div className="hidden lg:flex gap-6">
+                  {/* XL Layout (Side by side) */}
+                  <div className="hidden xl:flex gap-6">
                     {/* ฝั่งซ้าย - รูปใหญ่ */}
                     <div className="w-1/2">
                       <div className="relative overflow-hidden rounded-md cursor-pointer flex justify-center">
