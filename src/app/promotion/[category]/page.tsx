@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Header from '../../../layout/header/page'
 import FooterPage from '../../../layout/footer/page'
-import { promotionService, Category, Promotion } from '../../../lib/supabase-services'
+import { promotionService, Category, Promotion, contactService } from '../../../lib/supabase-services'
 
 export default function CategoryPromotionPage() {
   const params = useParams()
@@ -14,6 +14,7 @@ export default function CategoryPromotionPage() {
   const [promotions, setPromotions] = useState<Promotion[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [lineUrl, setLineUrl] = useState<string>('https://line.me/R/ti/p/@403wfucg?oat_content=url&ts=06252153')
   
   const categoryParam = params.category as string
 
@@ -45,7 +46,26 @@ export default function CategoryPromotionPage() {
     }
 
     loadCategoryData()
+    loadLineUrl()
   }, [categoryParam])
+
+  const loadLineUrl = async () => {
+    try {
+      const contacts = await contactService.getAll()
+      const lineData = contacts.find(contact => 
+        contact.name.toLowerCase() === 'line'
+      )
+      if (lineData && lineData.url) {
+        setLineUrl(lineData.url)
+      }
+    } catch (error) {
+      console.error('Error loading Line URL:', error)
+    }
+  }
+
+  const handleAddLine = () => {
+    window.open(lineUrl, '_blank')
+  }
 
   const CarCard = ({ car }: { car: Promotion }) => (
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
@@ -60,8 +80,14 @@ export default function CategoryPromotionPage() {
       
       <div className="flex gap-2">
         <button 
+          onClick={handleAddLine}
+          className="flex-1 cursor-pointer bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors text-sm"
+        >
+          Add Line
+        </button>
+        <button 
           onClick={() => router.push('/contact')}
-          className="flex-1 cursor-pointer bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 transition-colors text-sm"
+          className="flex-1 cursor-pointer bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors text-sm"
         >
           ติดต่อเรา
         </button>

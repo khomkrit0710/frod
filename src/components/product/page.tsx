@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { productService, Product } from '@/lib/supabase-services'
+import { productService, Product, contactService } from '@/lib/supabase-services'
 import ScrollContainer from '../../layout/scroll/page'
 
 export default function ProductPage() {
@@ -10,9 +10,11 @@ export default function ProductPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [lineUrl, setLineUrl] = useState<string>('https://line.me/R/ti/p/@403wfucg?oat_content=url&ts=06252153')
 
   useEffect(() => {
     loadProducts()
+    loadLineUrl()
   }, [])
 
   const loadProducts = async () => {
@@ -25,6 +27,24 @@ export default function ProductPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadLineUrl = async () => {
+    try {
+      const contacts = await contactService.getAll()
+      const lineData = contacts.find(contact => 
+        contact.name.toLowerCase() === 'line'
+      )
+      if (lineData && lineData.url) {
+        setLineUrl(lineData.url)
+      }
+    } catch (error) {
+      console.error('Error loading Line URL:', error)
+    }
+  }
+
+  const handleAddLine = () => {
+    window.open(lineUrl, '_blank')
   }
 
   const ProductCard = ({ product }: { product: Product }) => (
@@ -79,8 +99,17 @@ export default function ProductPage() {
       </div>
 
       <div className="flex gap-1 mt-auto">
-        <button className="flex-1 minimal-button bg-blue-600 text-white hover:bg-blue-700 text-xs">
+        <button 
+          onClick={() => router.push('/contact')}
+          className="flex-1 minimal-button  text-blue-500 border border-blue-500 hover:bg-blue-700 text-xs hover:text-white transition-colors"
+        >
           ติดต่อเรา
+        </button>
+        <button 
+          onClick={handleAddLine}
+          className="flex-1 minimal-button bg-green-500 text-white hover:bg-green-600 text-xs"
+        >
+          Add Line
         </button>
       </div>
     </div>

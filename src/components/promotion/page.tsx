@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { promotionService, Category, Promotion } from '../../lib/supabase-services'
+import { promotionService, Category, Promotion, contactService } from '../../lib/supabase-services'
 import ScrollContainer from '../../layout/scroll/page'
 
 interface CategoryWithPromotions extends Category {
@@ -15,9 +15,11 @@ export default function PromotionPage() {
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [mainImages, setMainImages] = useState<Record<string, Promotion>>({})
+  const [lineUrl, setLineUrl] = useState<string>('https://line.me/R/ti/p/@403wfucg?oat_content=url&ts=06252153')
 
   useEffect(() => {
     loadData()
+    loadLineUrl()
   }, [])
 
   const loadData = async () => {
@@ -47,6 +49,24 @@ export default function PromotionPage() {
       setLoading(false)
     }
   }
+
+  const loadLineUrl = async () => {
+    try {
+      const contacts = await contactService.getAll()
+      const lineData = contacts.find(contact => 
+        contact.name.toLowerCase() === 'line'
+      )
+      if (lineData && lineData.url) {
+        setLineUrl(lineData.url)
+      }
+    } catch (error) {
+      console.error('Error loading Line URL:', error)
+    }
+  }
+
+  const handleAddLine = () => {
+    window.open(lineUrl, '_blank')
+  }
   
   const CarCard = ({ car, categoryName }: { car: Promotion, categoryName: string }) => (
     <div className="minimal-card p-2 md:p-3 flex-shrink-0">
@@ -59,6 +79,15 @@ export default function PromotionPage() {
         />
       </div>
       
+      <div className="flex gap-1 mt-2">
+        <button 
+          onClick={handleAddLine}
+          className="flex-1 bg-green-500 text-white hover:bg-green-600 text-xs px-2 py-1 rounded transition-colors"
+        >
+          Add Line
+        </button>
+
+      </div>
     </div>
   )
 
@@ -120,6 +149,23 @@ export default function PromotionPage() {
                           }}
                         />
                       </div>
+                      
+                      {/* ปุ่มใต้รูปใหญ่สำหรับ Mobile/Tablet */}
+                      <div className="flex gap-2 mt-3 justify-center">
+                        <button 
+                          onClick={() => router.push('/contact')}
+                          className="flex-1 minimal-button  text-blue-500 border border-blue-500 hover:bg-blue-700 text-xs hover:text-white transition-colors"
+                        >
+                          ติดต่อเรา
+                        </button>
+                        <button 
+                          onClick={handleAddLine}
+                          className="bg-green-500 text-white hover:bg-green-600 text-sm px-4 py-2 rounded transition-colors"
+                        >
+                          Add Line
+                        </button>
+
+                      </div>
                     </div>
                     
                     {/* การ์ดรูปเล็กด้านล่าง */}
@@ -174,6 +220,23 @@ export default function PromotionPage() {
                           }}
                         />
                       </div>
+                      
+                      {/* ปุ่มใต้รูปใหญ่สำหรับ XL Layout */}
+                      <div className="flex gap-2 mt-3 justify-center">
+                        <button 
+                          onClick={() => router.push('/contact')}
+                          className="bg-white text-blue-500 border border-blue-500 hover:bg-blue-700 hover:text-white text-sm px-4 py-2 rounded transition-colors"
+                        >
+                          ติดต่อเรา
+                        </button>
+                        <button 
+                          onClick={handleAddLine}
+                          className="bg-green-500 text-white hover:bg-green-600 text-sm px-4 py-2 rounded transition-colors"
+                        >
+                          Add Line
+                        </button>
+
+                      </div>
                     </div>
                     
                     {/* ฝั่งขวา - การ์ดรูปเล็ก */}
@@ -191,12 +254,6 @@ export default function PromotionPage() {
               )}
               
               <div className="flex flex-col sm:flex-row justify-center sm:justify-end gap-3 mb-6 mt-4">
-                <button
-                  onClick={() => router.push('/contact')}
-                  className="bg-blue-600 text-white text-sm px-4 py-2 rounded-md hover:bg-blue-700 transition-colors w-full sm:w-auto"
-                >
-                  ติดต่อเรา
-                </button>
                 <button
                   onClick={() => router.push(`/promotion/${category.name.toLowerCase()}`)}
                   className="bg-red-600 text-white text-sm px-4 py-2 rounded-md hover:bg-red-700 transition-colors w-full sm:w-auto"
