@@ -170,23 +170,14 @@ export default function PromotionPage() {
                     
                     {/* การ์ดรูปเล็กด้านล่าง */}
                     <div className="mb-4">
-                      {/* Extra Small Mobile: แนวนอนเลื่อนได้ */}
-                      <div className="block sm:hidden">
-                        <ScrollContainer className="max-h-[35vh] overflow-x-auto overflow-y-hidden">
-                          <div className="flex gap-2 pb-2">
+                      {/* Mobile (All iPhone sizes): แนวนอนเลื่อนได้ */}
+                      <div className="block md:hidden">
+                        <ScrollContainer className="max-h-[35vh] sm:max-h-[40vh] overflow-x-auto overflow-y-hidden">
+                          <div className="flex gap-2 sm:gap-3 pb-2" style={{ minWidth: 'max-content' }}>
                             {cars.map((car: Promotion) => (
-                              <CarCard key={car.id} car={car} categoryName={category.name} />
-                            ))}
-                          </div>
-                        </ScrollContainer>
-                      </div>
-                      
-                      {/* Small Mobile: แนวนอนเลื่อนได้ */}
-                      <div className="hidden sm:block md:hidden">
-                        <ScrollContainer className="max-h-[40vh] overflow-x-auto overflow-y-hidden">
-                          <div className="flex gap-3 pb-2">
-                            {cars.map((car: Promotion) => (
-                              <CarCard key={car.id} car={car} categoryName={category.name} />
+                              <div key={car.id} style={{ minWidth: '120px', flexShrink: 0 }}>
+                                <CarCard car={car} categoryName={category.name} />
+                              </div>
                             ))}
                           </div>
                         </ScrollContainer>
@@ -195,9 +186,11 @@ export default function PromotionPage() {
                       {/* Tablet and Desktop: แนวนอนเลื่อนได้ */}
                       <div className="hidden md:block">
                         <ScrollContainer className="max-h-[40vh] lg:max-h-[45vh] overflow-x-auto overflow-y-hidden">
-                          <div className="flex gap-3 lg:gap-4 pb-2">
+                          <div className="flex gap-3 lg:gap-4 pb-2" style={{ minWidth: 'max-content' }}>
                             {cars.map((car: Promotion) => (
-                              <CarCard key={car.id} car={car} categoryName={category.name} />
+                              <div key={car.id} style={{ minWidth: '140px', flexShrink: 0 }}>
+                                <CarCard car={car} categoryName={category.name} />
+                              </div>
                             ))}
                           </div>
                         </ScrollContainer>

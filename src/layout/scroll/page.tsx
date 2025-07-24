@@ -60,7 +60,12 @@ export default function ScrollContainer({ children, className = '' }: ScrollCont
       <div 
         ref={scrollContainerRef}
         className={`flex gap-3 overflow-x-auto scrollbar-hide ${showScrollButtons ? 'px-8' : 'px-0'} ${className}`}
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ 
+          scrollbarWidth: 'none', 
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-x'
+        }}
       >
         {children}
       </div>
