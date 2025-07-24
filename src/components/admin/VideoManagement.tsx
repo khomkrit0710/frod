@@ -9,7 +9,9 @@ export default function VideoManagement() {
   const [editingVideo, setEditingVideo] = useState<Video | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
   const [formData, setFormData] = useState<Partial<Video>>({
-    youtube_url: ''
+    youtube_url: '',
+    description: '',
+    author: ''
   })
 
   useEffect(() => {
@@ -46,7 +48,11 @@ export default function VideoManagement() {
     }
 
     try {
-      const newVideo = await videoService.create(formData.youtube_url)
+      const newVideo = await videoService.create(
+        formData.youtube_url,
+        formData.description,
+        formData.author
+      )
       setVideos(prev => [newVideo, ...prev])
       alert('เพิ่มวิดีโอสำเร็จ!')
       setShowAddForm(false)
@@ -61,7 +67,12 @@ export default function VideoManagement() {
     if (!editingVideo || !formData.youtube_url) return
 
     try {
-      const updatedVideo = await videoService.update(editingVideo.id, formData.youtube_url)
+      const updatedVideo = await videoService.update(
+        editingVideo.id,
+        formData.youtube_url,
+        formData.description,
+        formData.author
+      )
       setVideos(prev => prev.map(video =>
         video.id === editingVideo.id ? updatedVideo : video
       ))
@@ -89,7 +100,9 @@ export default function VideoManagement() {
 
   const resetForm = () => {
     setFormData({
-      youtube_url: ''
+      youtube_url: '',
+      description: '',
+      author: ''
     })
   }
 
@@ -129,7 +142,9 @@ export default function VideoManagement() {
             </div>
             <div className="p-4">
               <h4 className="font-bold text-lg mb-2">Video ID: {video.id}</h4>
-              <p className="text-blue-600 text-sm mb-3 break-all">{video.youtube_url}</p>
+              <p className="text-gray-600 text-sm mb-1">{video.description || 'วิดีโอจาก FORD STYLE ME'}</p>
+              <p className="text-gray-500 text-xs mb-2">{video.author || 'Ford Thailand'}</p>
+              <p className="text-blue-600 text-xs mb-3 break-all">{video.youtube_url}</p>
               <div className="flex justify-between">
                 <button
                   onClick={() => startEdit(video)}
@@ -171,6 +186,40 @@ export default function VideoManagement() {
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   ใส่ URL ของ YouTube ที่ต้องการแสดง
+                </p>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  คำอธิบาย
+                </label>
+                <input
+                  type="text"
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  placeholder="วิดีโอจาก FORD STYLE ME"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  หากไม่กรอก จะแสดง &quot;วิดีโอจาก FORD STYLE ME&quot;
+                </p>
+              </div>
+
+              {/* Author */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ผู้สร้าง/ช่อง
+                </label>
+                <input
+                  type="text"
+                  value={formData.author || ''}
+                  onChange={(e) => handleInputChange('author', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  placeholder="Ford Thailand"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  หากไม่กรอก จะแสดง &quot;Ford Thailand&quot;
                 </p>
               </div>
 

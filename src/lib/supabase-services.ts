@@ -685,6 +685,8 @@ export const galleryService = {
 export interface Video {
   id: number
   youtube_url: string
+  description?: string
+  author?: string
   created_at?: string
   updated_at?: string
 }
@@ -736,14 +738,16 @@ export const videoService = {
   },
 
   // Create new video
-  async create(youtubeUrl: string): Promise<Video> {
+  async create(youtubeUrl: string, description?: string, author?: string): Promise<Video> {
     const id = Date.now()
     
     const { data, error } = await supabase
       .from('videos')
       .insert([{
         id,
-        youtube_url: youtubeUrl
+        youtube_url: youtubeUrl,
+        description: description || 'วิดีโอจาก FORD STYLE ME',
+        author: author || 'Ford Thailand'
       }])
       .select()
       .single()
@@ -757,13 +761,18 @@ export const videoService = {
   },
 
   // Update video
-  async update(id: number, youtubeUrl: string): Promise<Video> {
+  async update(id: number, youtubeUrl: string, description?: string, author?: string): Promise<Video> {
+    const updateData: { youtube_url: string; updated_at: string; description?: string; author?: string } = {
+      youtube_url: youtubeUrl,
+      updated_at: new Date().toISOString()
+    }
+    
+    if (description !== undefined) updateData.description = description
+    if (author !== undefined) updateData.author = author
+    
     const { data, error } = await supabase
       .from('videos')
-      .update({
-        youtube_url: youtubeUrl,
-        updated_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single()

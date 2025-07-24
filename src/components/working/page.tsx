@@ -74,7 +74,7 @@ export default function WorkingPage() {
               </div>
               <div className="p-2 mt-2">
                 <p className="text-gray-600 text-xs line-clamp-2 mb-2">
-                  วิดีโอจาก FORD STYLE ME
+                  {video.description || 'วิดีโอจาก FORD STYLE ME'}
                 </p>
                 <div className="mt-2 flex items-center justify-between">
                   <button 
@@ -83,7 +83,7 @@ export default function WorkingPage() {
                   >
                     ดูวิดีโอ
                   </button>
-                  <span className="text-xs text-gray-500">Ford Thailand</span>
+                  <span className="text-xs text-gray-500">{video.author || 'Ford Thailand'}</span>
                 </div>
               </div>
             </div>
