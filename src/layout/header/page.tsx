@@ -143,6 +143,14 @@ export default function Page() {
             </li>
             <li>
               <button 
+                onClick={() => scrollToSection('products')}
+                className="hover:text-blue-600 transition-colors duration-200"
+              >
+                อุปกรณ์เสริม
+              </button>
+            </li>
+            <li>
+              <button 
                 onClick={() => router.push('/contact')}
                 className="hover:text-blue-600 transition-colors duration-200"
               >
@@ -211,6 +219,13 @@ export default function Page() {
                 </div>
               )}
             </div>
+            
+            <button 
+              onClick={() => handleNavClick(() => scrollToSection('products'))}
+              className="block w-full text-left px-3 py-2 text-sm text-white hover:bg-blue-700 rounded-md transition-colors duration-200"
+            >
+              อุปกรณ์เสริม
+            </button>
             
             <button 
               onClick={() => handleNavClick(() => router.push('/contact'))}
