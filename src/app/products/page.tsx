@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '../../layout/header/page'
 import FooterPage from '../../layout/footer/page'
-import { productService, Product } from '../../lib/supabase-services'
+import { productService, Product, contactService } from '../../lib/supabase-services'
 
 export default function AllProductsPage() {
   const router = useRouter()
@@ -12,9 +12,11 @@ export default function AllProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [lineUrl, setLineUrl] = useState<string>('https://line.me/R/ti/p/@403wfucg?oat_content=url&ts=06252153')
 
   useEffect(() => {
     loadProducts()
+    loadLineUrl()
   }, [])
 
   const loadProducts = async () => {
@@ -29,6 +31,24 @@ export default function AllProductsPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadLineUrl = async () => {
+    try {
+      const contacts = await contactService.getAll()
+      const lineData = contacts.find(contact => 
+        contact.name.toLowerCase() === 'line'
+      )
+      if (lineData && lineData.url) {
+        setLineUrl(lineData.url)
+      }
+    } catch (error) {
+      console.error('Error loading Line URL:', error)
+    }
+  }
+
+  const handleAddLine = () => {
+    window.open(lineUrl, '_blank')
   }
 
   const ProductCard = ({ product }: { product: Product }) => (
@@ -116,6 +136,12 @@ export default function AllProductsPage() {
           className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors text-sm"
         >
           ติดต่อเรา
+        </button>
+        <button 
+          onClick={handleAddLine}
+          className="flex-1 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors text-sm"
+        >
+          Add Line
         </button>
       </div>
     </div>
