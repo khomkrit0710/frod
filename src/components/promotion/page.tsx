@@ -70,8 +70,8 @@ export default function PromotionPage() {
   
   const CarCard = ({ car, categoryName }: { car: Promotion, categoryName: string }) => (
     <div className="minimal-card p-2 md:p-3" style={{ 
-      minWidth: 'auto', 
-      maxWidth: 'auto',
+      minWidth: '180px', 
+      maxWidth: '180px',
       flexShrink: 0,
       flexGrow: 0
     }}>
