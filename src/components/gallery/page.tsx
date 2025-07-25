@@ -54,11 +54,11 @@ export default function GalleryPage() {
               onClick={() => openImageModal(image.image_url)}
             >
               <div className="relative">
-                <div className="aspect-w-16 aspect-h-12 bg-gray-50 rounded-md overflow-hidden">
+                <div className="bg-gray-50 rounded-md overflow-hidden">
                   <img
                     src={image.image_url}
                     alt={`รูปภาพ ${image.id}`}
-                    className="w-72 h-72 object-cover hover:scale-105 transition-transform duration-300"
+                    className="w-full h-auto object-contain hover:scale-105 transition-transform duration-300"
                   />
                 </div>
               </div>
