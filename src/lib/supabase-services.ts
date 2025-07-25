@@ -575,6 +575,8 @@ export const contactService = {
 export interface GalleryImage {
   id: number
   image_url: string
+  title?: string
+  description?: string
   created_at?: string
   updated_at?: string
 }
@@ -597,20 +599,46 @@ export const galleryService = {
   },
 
   // Create new gallery image
-  async create(imageUrl: string): Promise<GalleryImage> {
+  async create(imageUrl: string, title?: string, description?: string): Promise<GalleryImage> {
     const id = Date.now()
     
     const { data, error } = await supabase
       .from('gallery_images')
       .insert([{
         id,
-        image_url: imageUrl
+        image_url: imageUrl,
+        title: title || '',
+        description: description || ''
       }])
       .select()
       .single()
 
     if (error) {
       console.error('Error creating gallery image:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  // Update gallery image
+  async update(id: number, imageUrl?: string, title?: string, description?: string): Promise<GalleryImage> {
+    const updateData: Partial<GalleryImage> = {}
+    
+    if (imageUrl !== undefined) updateData.image_url = imageUrl
+    if (title !== undefined) updateData.title = title
+    if (description !== undefined) updateData.description = description
+    updateData.updated_at = new Date().toISOString()
+    
+    const { data, error } = await supabase
+      .from('gallery_images')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating gallery image:', error)
       throw error
     }
 

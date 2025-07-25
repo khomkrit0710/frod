@@ -57,9 +57,17 @@ export default function GalleryPage() {
                 <div className="bg-gray-50 rounded-md overflow-hidden">
                   <img
                     src={image.image_url}
-                    alt={`รูปภาพ ${image.id}`}
+                    alt={image.title || `รูปภาพ ${image.id}`}
                     className="w-full h-auto object-contain hover:scale-105 transition-transform duration-300"
                   />
+                </div>
+                <div className="p-3">
+                  <h3 className="text-sm font-medium text-gray-900 mb-1">
+                    {image.title || "-"}
+                  </h3>
+                  <p className="text-xs text-gray-600 line-clamp-2">
+                    {image.description || "-"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -73,12 +81,28 @@ export default function GalleryPage() {
             onClick={closeImageModal}
           >
             <div className="relative w-full h-full flex items-center justify-center">
-              <img 
-                src={selectedImage}
-                alt="รูปภาพขยาย"
-                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
-              />
+              <div className="text-center">
+                <img 
+                  src={selectedImage}
+                  alt="รูปภาพขยาย"
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                {/* แสดง title และ description ของรูปที่เลือก */}
+                {(() => {
+                  const selectedImg = images.find(img => img.image_url === selectedImage)
+                  return selectedImg && (selectedImg.title || selectedImg.description) ? (
+                    <div className="mt-4 bg-black bg-opacity-50 text-white p-4 rounded-lg max-w-md mx-auto">
+                      {selectedImg.title && (
+                        <h3 className="text-lg font-medium mb-2">{selectedImg.title}</h3>
+                      )}
+                      {selectedImg.description && (
+                        <p className="text-sm">{selectedImg.description}</p>
+                      )}
+                    </div>
+                  ) : null
+                })()} 
+              </div>
               <button
                 onClick={closeImageModal}
                 className="absolute top-2 right-2 w-8 h-8 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center hover:bg-opacity-70 transition-colors"
